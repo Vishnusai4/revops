@@ -1,8 +1,10 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
+import BetaProgram from '@/components/BetaProgram'
 import Features from '@/components/Features'
-import HowItWorks from '@/components/HowItWorks'
 import WhoItsFor from '@/components/WhoItsFor'
+import About from '@/components/About'
+import ContactSection from '@/components/ContactForm'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -10,9 +12,11 @@ export default function Home() {
     <main>
       <Header />
       <Hero />
+      <BetaProgram />
       <Features />
-      <HowItWorks />
       <WhoItsFor />
+      <About />
+      <ContactSection />
       <Footer />
     </main>
   )

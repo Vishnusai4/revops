@@ -1,29 +1,71 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { DM_Serif_Display, DM_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const dmSerif = DM_Serif_Display({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-dm-serif',
+  display: 'swap',
+})
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'RevOps Workflow Engine — Deal & Routing Intelligence',
-  description: 'Workflow engine for RevOps teams. Fix lead routing, stitch deal context, stop forecast slippage. Built for AI / DevTools / Data teams. Book 12 minutes with founder.',
+  title: 'Revenue Systems, Rebuilt | Teravictus',
+  description: 'One correct revenue number across your CRM, billing, and finance systems. Hands-on revenue operations for mid-market B2B SaaS.',
   openGraph: {
-    title: 'RevOps Workflow Engine — Deal & Routing Intelligence',
-    description: 'Workflow engine for RevOps teams. Fix lead routing, stitch deal context, stop forecast slippage. Built for AI / DevTools / Data teams. Book 12 minutes with founder.',
+    title: 'Revenue Systems, Rebuilt | Teravictus',
+    description: 'One correct revenue number across your CRM, billing, and finance systems. Hands-on revenue operations for mid-market B2B SaaS.',
     url: 'https://rev.teravictus.com',
     siteName: 'Teravictus RevOps',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RevOps Workflow Engine — Deal & Routing Intelligence',
-    description: 'Workflow engine for RevOps teams. Fix lead routing, stitch deal context, stop forecast slippage.',
+    title: 'Revenue Systems, Rebuilt | Teravictus',
+    description: 'One correct revenue number across your CRM, billing, and finance systems. Hands-on revenue operations for mid-market B2B SaaS.',
   },
   robots: {
     index: true,
     follow: true,
   },
+}
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What does Teravictus do?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'We fix the disconnect between CRM, billing, and finance systems so revenue teams operate from one correct number.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the Teravictus beta program?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A hands-on, 4 to 5 month engagement where we overhaul your revenue systems end to end. Discounted pricing for beta partners with a money-back guarantee.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Who is Teravictus built for?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'RevOps, Sales Ops, and Finance/Accounting teams at mid-market B2B SaaS companies.',
+      },
+    },
+  ],
 }
 
 export default function RootLayout({
@@ -32,8 +74,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${dmSerif.variable} ${dmSans.variable}`}>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
         {/* RB2B Tracking Script */}
         <script
           dangerouslySetInnerHTML={{
@@ -69,26 +115,8 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Google Analytics - uncomment and add GA_ID when ready */}
-        {/*
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <>
-            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-                `,
-              }}
-            />
-          </>
-        )}
-        */}
       </head>
-      <body className="font-sans text-slate-900 bg-white">
+      <body className="font-sans">
         {children}
         <Analytics />
       </body>

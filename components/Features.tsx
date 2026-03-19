@@ -1,63 +1,75 @@
-const features = [
+import AnimateIn from './AnimateIn'
+
+const painPoints = [
   {
-    title: 'Data Firewall',
-    description: 'Know which deals are real. Enforce decision-readiness gates so pipeline movement means something and commit calls feel safer.',
-    icon: (
-      <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-      </svg>
-    ),
+    heading: 'Your numbers don\u2019t match.',
+    body: 'Your CRM says one number. Billing says another. Finance says a third. We make them agree.',
   },
   {
-    title: 'Handoff Rules + SLA Engine',
-    description: 'Make the system behave the way you think it does. Encode leadership intent into handoffs and surface risk early with context.',
-    icon: (
-      <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-      </svg>
-    ),
+    heading: 'Your data can\u2019t be trusted.',
+    body: 'Custom fields, broken syncs, manual workarounds: your revenue stack has years of accumulated mess. We make it trustable.',
   },
   {
-    title: 'Exec Operating Rhythm',
-    description: 'Walk into reviews already knowing what changed and why. End meetings in decisions, not debates.',
-    icon: (
-      <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-      </svg>
-    ),
+    heading: 'It breaks again every quarter.',
+    body: 'Reconciliation is not a one-time fix. We make sure your systems stay in agreement, without the monthly fire drill.',
   },
+  {
+    heading: 'Your team waits for answers.',
+    body: 'Clean, structured revenue data your team or any AI can query directly. No analyst bottleneck, no waiting for reports.',
+  },
+]
+
+const steps = [
+  { label: '1', title: 'Assess', description: 'We map where your revenue data lives and where it breaks.' },
+  { label: '2', title: 'Fix', description: 'We resolve the gaps between systems and make the numbers agree.' },
+  { label: '3', title: 'Maintain', description: 'We make sure it stays that way.' },
 ]
 
 export default function Features() {
   return (
-    <section id="features" className="bg-slate-50 py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            What We Do
+    <section id="what-we-do" className="bg-surface-muted py-20 md:py-28">
+      <div className="mx-auto max-w-6xl px-6 lg:px-8">
+        <AnimateIn>
+          <h2 className="font-heading text-4xl tracking-tight text-ink sm:text-5xl max-w-2xl">
+            Fix the disconnect between your revenue systems.
           </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            Enforce pipeline integrity and turn your CRM into a system you can trust.
-          </p>
-        </div>
-        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="relative rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 hover:shadow-md transition-shadow"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-500 text-white">
-                {feature.icon}
+        </AnimateIn>
+
+        <div className="mt-16 grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-x-16 sm:gap-y-14">
+          {painPoints.map((item, i) => (
+            <AnimateIn key={item.heading} delay={i * 0.1} className={i % 2 === 1 ? 'sm:mt-12' : ''}>
+              <div>
+                <span className="block h-px w-8 bg-brand-500 mb-5" />
+                <h3 className="text-lg font-semibold text-ink">
+                  {item.heading}
+                </h3>
+                <p className="mt-2 text-ink-muted leading-relaxed">
+                  {item.body}
+                </p>
               </div>
-              <h3 className="mt-6 text-lg font-semibold text-slate-900">
-                {feature.title}
-              </h3>
-              <p className="mt-2 text-slate-600">
-                {feature.description}
-              </p>
-            </div>
+            </AnimateIn>
           ))}
         </div>
+
+        {/* How we work */}
+        <AnimateIn>
+          <div className="mt-20 pt-16 border-t border-ink/5">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-muted">
+              How we work
+            </h3>
+            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
+              {steps.map((step) => (
+                <div key={step.title} className="flex gap-4">
+                  <span className="text-2xl font-heading text-brand-300">{step.label}</span>
+                  <div>
+                    <h4 className="font-semibold text-ink">{step.title}</h4>
+                    <p className="mt-1 text-sm text-ink-muted leading-relaxed">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </AnimateIn>
       </div>
     </section>
   )
