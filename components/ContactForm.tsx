@@ -197,13 +197,21 @@ export default function ContactSection() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-muted">
-                  Email
+                  LinkedIn
                 </h3>
+                <p className="mt-2 text-ink-body leading-relaxed">
+                  Send a quick DM if that is easier.
+                </p>
                 <a
-                  href="mailto:vishnu@teravictus.com"
-                  className="mt-2 inline-block text-ink-body hover:text-brand-600 transition-colors"
+                  href="https://www.linkedin.com/in/vishnusaiy/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors"
                 >
-                  vishnu@teravictus.com
+                  Message on LinkedIn
+                  <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+                  </svg>
                 </a>
               </div>
             </div>

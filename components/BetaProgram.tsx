@@ -1,5 +1,12 @@
 import AnimateIn from './AnimateIn'
 
+const outcomes = [
+  { outcome: 'Unlock 300+ hours per month', context: 'Feels like gaining a team' },
+  { outcome: 'Recover 2 full-time employees worth of output', context: 'Very tangible' },
+  { outcome: 'Turn weekly reporting into real-time decisions', context: 'Strategic' },
+  { outcome: 'Remove delays in revenue decisions', context: 'CRO-level pain' },
+]
+
 const beforeAfter = [
   {
     before: 'CRM says one number, billing says another',
@@ -28,9 +35,29 @@ export default function BetaProgram() {
           </p>
         </AnimateIn>
 
-        {/* What we look for - at the top */}
+        {/* Impact - at the top */}
         <AnimateIn delay={0.1}>
           <div className="mt-10">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-muted">Impact</h3>
+            <p className="mt-2 text-sm text-ink-body">What changes when your revenue systems work.</p>
+            <div className="mt-6 space-y-0">
+              {outcomes.map((item, i) => (
+                <div key={item.outcome} className={`grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-8 py-4 ${i < outcomes.length - 1 ? 'border-b border-ink/5' : ''}`}>
+                  <div className="md:col-span-2">
+                    <p className="font-semibold text-ink">{item.outcome}</p>
+                  </div>
+                  <div className="md:col-span-1 md:flex md:items-center">
+                    <p className="text-sm text-ink-faint">{item.context}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </AnimateIn>
+
+        {/* What we look for */}
+        <AnimateIn delay={0.15}>
+          <div className="mt-12">
             <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-muted">What we look for</h3>
             <ul className="mt-4 space-y-3">
               <li className="flex items-start gap-3">
@@ -50,7 +77,7 @@ export default function BetaProgram() {
         </AnimateIn>
 
         {/* Before / After comparison */}
-        <AnimateIn delay={0.15}>
+        <AnimateIn delay={0.2}>
           <div className="mt-14 rounded-2xl border border-ink/5 bg-white overflow-hidden">
             <div className="grid grid-cols-2">
               <div className="px-6 py-4 bg-surface-muted border-b border-ink/5">
@@ -74,7 +101,7 @@ export default function BetaProgram() {
         </AnimateIn>
 
         {/* Terms row */}
-        <AnimateIn delay={0.2}>
+        <AnimateIn delay={0.25}>
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8">
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-muted">Pricing</h3>
@@ -97,7 +124,7 @@ export default function BetaProgram() {
           </div>
         </AnimateIn>
 
-        <AnimateIn delay={0.25}>
+        <AnimateIn delay={0.3}>
           <div className="mt-10">
             <a
               href="#contact"
