@@ -115,6 +115,8 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Umami Analytics */}
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="986a7c31-10bd-4019-ad6c-b41779621d68" />
       </head>
       <body className="font-sans">
         {children}
