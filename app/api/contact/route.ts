@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     if (resend) {
       try {
         await resend.emails.send({
-          from: 'RevOps Signups <onboarding@resend.dev>', // Use your verified domain in production
+          from: 'Teravictus <noreply@inbound.teravictus.com>',
           to: ['vishnu@teravictus.com'],
           subject: `New RevOps Signup: ${data.name} from ${data.company}`,
           html: `
