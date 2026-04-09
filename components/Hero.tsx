@@ -6,12 +6,12 @@ export default function Hero() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <AnimateIn>
           <h1 className="font-heading text-3xl tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            Your GTM and revenue machine is running. But the full picture of how it performs never assembles in time to act on it.
+            High-speed GTM intelligence. Zero manual effort.
           </h1>
         </AnimateIn>
         <AnimateIn delay={0.1}>
           <p className="mt-6 text-xl leading-relaxed text-ink-muted max-w-2xl">
-            Teravictus connects your CRM, billing, product analytics, support, and call transcripts and gives GTM and revenue leaders one direct read, automatically, every week.
+            Stop waiting days for analysts to &ldquo;crunch the numbers.&rdquo; Teravictus delivers instant, unified insights across your entire revenue stack—providing the speed of a machine with the nuance of an executive briefing.
           </p>
         </AnimateIn>
         <AnimateIn delay={0.2}>
