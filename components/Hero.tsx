@@ -6,7 +6,7 @@ export default function Hero() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <AnimateIn>
           <h1 className="font-heading text-3xl tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            High-speed GTM intelligence. Zero manual effort.
+            High-speed GTM and revenue intelligence. Zero manual effort.
           </h1>
         </AnimateIn>
         <AnimateIn delay={0.1}>
