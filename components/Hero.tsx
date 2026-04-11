@@ -11,7 +11,7 @@ export default function Hero() {
         </AnimateIn>
         <AnimateIn delay={0.1}>
           <p className="mt-6 text-xl leading-relaxed text-ink-muted max-w-2xl">
-            Stop building fragile dashboards. Teravictus provides the rigid, automated infrastructure that connects your entire stack—enabling Claude, Clawdbot, or any AI to deliver complex data-objects like forecasts, NRR, revenue leakage, pipeline, or any custom deep analysis with surgical precision and immediate results.
+            Stop building fragile dashboards. Most dashboards break. Teravictus is different. It is a solid spine for all your data. It connects every tool you use. Now, you can ask AI for the truth. Get fast answers on NRR, leaks, or your pipeline. No more waiting. No more errors. Clear results when you need them.
           </p>
         </AnimateIn>
         <AnimateIn delay={0.2}>
