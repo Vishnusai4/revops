@@ -6,12 +6,12 @@ export default function Hero() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <AnimateIn>
           <h1 className="font-heading text-3xl tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            High-speed GTM and revenue intelligence. Zero manual effort.
+            The data-spine of your revenue engine.
           </h1>
         </AnimateIn>
         <AnimateIn delay={0.1}>
           <p className="mt-6 text-xl leading-relaxed text-ink-muted max-w-2xl">
-            Stop waiting days for analysts to &ldquo;crunch the numbers.&rdquo; Teravictus delivers instant, unified insights across your entire revenue stack—providing the speed of a machine with the nuance of an executive briefing.
+            Stop building fragile dashboards. Teravictus provides the rigid, automated infrastructure that connects your entire stack—enabling Claude, Clawdbot, or any AI to deliver complex data-objects like forecasts, NRR, revenue leakage, pipeline, or any custom deep analysis with surgical precision and immediate results.
           </p>
         </AnimateIn>
         <AnimateIn delay={0.2}>
