@@ -1,5 +1,4 @@
-const sections = [
-  { label: 'Revenue Plan Stress Test', href: '/stress-test' },
+const navSections = [
   { label: 'Beta Program', href: '#beta' },
   { label: 'What We Do', href: '#what-we-do' },
   { label: 'Who It\u2019s For', href: '#built-for' },
@@ -18,17 +17,28 @@ export default function Footer() {
             <span className="text-lg font-semibold text-white">Teravictus</span>
             <span className="ml-3 text-white/40">rev.teravictus.com</span>
           </div>
-          <nav className="flex flex-wrap gap-x-6 gap-y-2">
-            {sections.map((s) => (
+          <div className="flex flex-wrap gap-x-8 gap-y-4">
+            <nav className="flex flex-wrap gap-x-6 gap-y-2">
+              {navSections.map((s) => (
+                <a
+                  key={s.href}
+                  href={s.href}
+                  className="text-sm text-white/50 hover:text-white transition-colors"
+                >
+                  {s.label}
+                </a>
+              ))}
+            </nav>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">Free Tools</p>
               <a
-                key={s.href}
-                href={s.href}
-                className="text-sm text-white/50 hover:text-white transition-colors"
+                href="/stress-test"
+                className="block text-sm text-white/50 hover:text-white transition-colors"
               >
-                {s.label}
+                Revenue Plan Stress Test
               </a>
-            ))}
-          </nav>
+            </div>
+          </div>
         </div>
         <div className="mt-8 border-t border-white/10 pt-8">
           <p className="text-sm text-white/30">
