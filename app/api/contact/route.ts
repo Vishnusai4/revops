@@ -36,22 +36,21 @@ export async function POST(request: NextRequest) {
 
     // Send email via Resend
     if (resend) {
-      try {
-        await resend.emails.send({
-          from: 'Teravictus <noreply@inbound.teravictus.com>',
-          to: ['vishnu@teravictus.com'],
-          subject: `New RevOps Signup: ${data.name} from ${data.company}`,
-          html: `
-            <h2>New Contact Form Submission</h2>
-            <p><strong>Name:</strong> ${data.name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a></p>
-            <p><strong>Company:</strong> ${data.company}</p>
-            <p><strong>Role:</strong> ${data.role}</p>
-            <p><strong>Message:</strong> ${data.message || '(no message)'}</p>
-            <hr/>
-            <p><em>Submitted at ${new Date().toISOString()} from rev.teravictus.com</em></p>
-          `,
-          text: `
+      const { data: emailData, error: emailError } = await resend.emails.send({
+        from: 'Teravictus <noreply@inbound.teravictus.com>',
+        to: ['vishnu@teravictus.com'],
+        subject: `New RevOps Signup: ${data.name} from ${data.company}`,
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a></p>
+          <p><strong>Company:</strong> ${data.company}</p>
+          <p><strong>Role:</strong> ${data.role}</p>
+          <p><strong>Message:</strong> ${data.message || '(no message)'}</p>
+          <hr/>
+          <p><em>Submitted at ${new Date().toISOString()} from rev.teravictus.com</em></p>
+        `,
+        text: `
 New Contact Form Submission
 
 Name: ${data.name}
@@ -61,12 +60,12 @@ Role: ${data.role}
 Message: ${data.message || '(no message)'}
 
 Submitted at ${new Date().toISOString()} from rev.teravictus.com
-          `.trim(),
-        })
-        console.log('Email sent successfully via Resend')
-      } catch (emailError) {
+        `.trim(),
+      })
+      if (emailError) {
         console.error('Failed to send email via Resend:', emailError)
-        // Don't fail the request if email fails - still log the submission
+      } else {
+        console.log('Email sent successfully via Resend — id:', emailData?.id)
       }
     } else {
       console.log('RESEND_API_KEY not configured - email not sent')
