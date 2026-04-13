@@ -15,12 +15,21 @@ export default function Hero() {
           </p>
         </AnimateIn>
         <AnimateIn delay={0.2}>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <a
               href="#beta"
               className="inline-flex items-center text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors"
             >
               Learn about our beta program
+              <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+              </svg>
+            </a>
+            <a
+              href="/stress-test"
+              className="inline-flex items-center text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors"
+            >
+              Try the Revenue Plan Stress Test
               <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
               </svg>
