@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 
 const navLinks = [
-  { label: 'Try the free Stress Test', href: '/stress-test' },
+  { label: 'Try the free Revenue Stress Test', href: '/stress-test' },
   { label: 'Beta Program', href: '#beta' },
   { label: 'Who It\u2019s For', href: '#built-for' },
   { label: 'About', href: '#about' },
