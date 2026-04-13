@@ -30,6 +30,15 @@ export default function Footer() {
           </nav>
         </div>
         <div className="mt-8 border-t border-white/10 pt-8">
+          <div className="mb-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-3">Free Tools</p>
+            <a
+              href="/stress-test"
+              className="inline-block text-sm text-brand-400 hover:text-brand-300 transition-colors"
+            >
+              Revenue Plan Stress Test →
+            </a>
+          </div>
           <p className="text-sm text-white/30">
             &copy; {currentYear} Teravictus. All rights reserved.
           </p>
