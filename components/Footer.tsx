@@ -37,6 +37,12 @@ export default function Footer() {
               >
                 Revenue Plan Stress Test
               </a>
+              <a
+                href="/context-simulator"
+                className="block text-sm text-white/50 hover:text-white transition-colors"
+              >
+                Context Quality Simulator
+              </a>
             </div>
           </div>
         </div>
