@@ -13,8 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { AssessmentInputSchema } from '@/lib/stress-test/schema'
-import type { AssessmentOutput, AssessmentInput } from '@/lib/stress-test/types'
+import type { AssessmentOutput } from '@/lib/stress-test/types'
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
@@ -22,16 +21,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Validate the assessment input
-    const parseResult = AssessmentInputSchema.safeParse(body.input)
-    if (!parseResult.success) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid assessment input' },
-        { status: 400 },
-      )
+    const email: string | undefined = body.input?.lead?.email || body.email
+    if (!email) {
+      return NextResponse.json({ ok: false, error: 'Missing email' }, { status: 400 })
     }
 
-    const input = parseResult.data as AssessmentInput
+    // Build a minimal lead object for template rendering
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const input: any = { lead: { email, firstName: body.input?.lead?.firstName, company: body.input?.lead?.company } }
     const output: AssessmentOutput | undefined = body.output
 
     if (!output) {

@@ -2,124 +2,97 @@
 
 import { useReducer, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import type {
-  AssessmentState,
-  AssessmentPhase,
-  LeadInput,
-  CompanyProfileInput,
-  TeamInput,
-  PipelineInput,
-  StressScenariosInput,
-  AssessmentOutput,
-} from '@/lib/stress-test/types'
+import type { AssessmentOutput } from '@/lib/stress-test/types'
+import type { QuizARRBand, QuizAmbition, QuizAttainment, QuizPipelineHealth } from '@/lib/stress-test/quiz-types'
+import { scoreQuiz } from '@/lib/stress-test/quiz-scoring'
 import StepIndicator from './StepIndicator'
-import StepLeadCapture from './steps/StepLeadCapture'
-import StepCompanyProfile from './steps/StepCompanyProfile'
-import StepTeamCoverage from './steps/StepTeamCoverage'
-import StepPipeline from './steps/StepPipeline'
-import StepStressScenarios from './steps/StepStressScenarios'
+import QuizStep from './steps/QuizStep'
 import ResultsDashboard from './results/ResultsDashboard'
 
-// ─── State defaults ───────────────────────────────────────────
-const DEFAULT_STRESS: Partial<StressScenariosInput> = {
-  hiringDelayed: false,
-  hiringDelayQuarters: 1,
-  winRateDropPct: 10,
-  salesCycleExpansionPct: 15,
-  aspDeclinePct: 10,
-  pipelineDropPct: 20,
-  attritionIncreasePct: 5,
+// ─── Analytics ────────────────────────────────────────────────
+function trackPage(url: string, title: string) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).umami?.track((props: Record<string, unknown>) => ({ ...props, url, title }))
+  } catch {}
 }
 
-const INITIAL_STATE: AssessmentState = {
+// ─── State ───────────────────────────────────────────────────
+type QuizPhase = 'intro' | 'step-1' | 'step-2' | 'step-3' | 'results'
+
+interface QuizState {
+  phase: QuizPhase
+  arrBand:       QuizARRBand       | null
+  ambition:      QuizAmbition      | null
+  attainment:    QuizAttainment    | null
+  pipelineHealth:QuizPipelineHealth| null
+  output:        AssessmentOutput  | null
+}
+
+const INITIAL: QuizState = {
   phase: 'intro',
-  lead: { email: '' },
-  company: {},
-  team: {},
-  pipeline: { pipelineCoverageRatio: 3.0, concentrationRiskPct: 20 },
-  stress: DEFAULT_STRESS,
+  arrBand: null, ambition: null, attainment: null, pipelineHealth: null,
   output: null,
-  error: null,
 }
 
-// ─── Reducer ─────────────────────────────────────────────────
 type Action =
-  | { type: 'SET_PHASE'; phase: AssessmentPhase }
-  | { type: 'SET_LEAD'; lead: LeadInput }
-  | { type: 'SET_COMPANY'; company: Partial<CompanyProfileInput> }
-  | { type: 'SET_TEAM'; team: Partial<TeamInput> }
-  | { type: 'SET_PIPELINE'; pipeline: Partial<PipelineInput> }
-  | { type: 'SET_STRESS'; stress: Partial<StressScenariosInput> }
+  | { type: 'SET_PHASE'; phase: QuizPhase }
+  | { type: 'SET_ARR'; arrBand: QuizARRBand }
+  | { type: 'SET_AMBITION'; ambition: QuizAmbition }
+  | { type: 'SET_ATTAINMENT'; attainment: QuizAttainment }
+  | { type: 'SET_PIPELINE'; pipelineHealth: QuizPipelineHealth }
   | { type: 'SET_OUTPUT'; output: AssessmentOutput }
-  | { type: 'SET_ERROR'; error: string }
   | { type: 'RESET' }
 
-function reducer(state: AssessmentState, action: Action): AssessmentState {
+function reducer(state: QuizState, action: Action): QuizState {
   switch (action.type) {
-    case 'SET_PHASE':     return { ...state, phase: action.phase, error: null }
-    case 'SET_LEAD':      return { ...state, lead: action.lead }
-    case 'SET_COMPANY':   return { ...state, company: action.company }
-    case 'SET_TEAM':      return { ...state, team: action.team }
-    case 'SET_PIPELINE':  return { ...state, pipeline: action.pipeline }
-    case 'SET_STRESS':    return { ...state, stress: action.stress }
-    case 'SET_OUTPUT':    return { ...state, output: action.output, phase: 'results', error: null }
-    case 'SET_ERROR':     return { ...state, error: action.error, phase: 'step-5' }
-    case 'RESET':         return { ...INITIAL_STATE }
-    default:              return state
+    case 'SET_PHASE':      return { ...state, phase: action.phase }
+    case 'SET_ARR':        return { ...state, arrBand: action.arrBand }
+    case 'SET_AMBITION':   return { ...state, ambition: action.ambition }
+    case 'SET_ATTAINMENT': return { ...state, attainment: action.attainment }
+    case 'SET_PIPELINE':   return { ...state, pipelineHealth: action.pipelineHealth }
+    case 'SET_OUTPUT':     return { ...state, output: action.output, phase: 'results' }
+    case 'RESET':          return { ...INITIAL }
+    default:               return state
   }
 }
 
-// ─── Session persistence ──────────────────────────────────────
-const SESSION_KEY = 'tv-stress-test'
+// ─── Session storage ──────────────────────────────────────────
+const SESSION_KEY = 'tv-quiz-v2'
 
-function loadSession(): AssessmentState | null {
+function loadSession(): QuizState | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY)
-    return raw ? (JSON.parse(raw) as AssessmentState) : null
-  } catch {
-    return null
-  }
+    return raw ? (JSON.parse(raw) as QuizState) : null
+  } catch { return null }
 }
 
-function saveSession(state: AssessmentState) {
+function saveSession(s: QuizState) {
   try {
-    // Don't persist the results page state — always recalculate
-    if (state.phase === 'results') return
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(state))
-  } catch {
-    // sessionStorage unavailable (e.g. private browsing with storage blocked) — no-op
-  }
+    if (s.phase === 'results') return
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(s))
+  } catch {}
 }
 
 function clearSession() {
-  try { sessionStorage.removeItem(SESSION_KEY) } catch { /* no-op */ }
+  try { sessionStorage.removeItem(SESSION_KEY) } catch {}
 }
 
-// ─── Step meta ────────────────────────────────────────────────
-const STEP_PHASES: AssessmentPhase[] = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5']
-
-function phaseToStep(phase: AssessmentPhase): number {
-  const idx = STEP_PHASES.indexOf(phase)
-  return idx === -1 ? 0 : idx + 1
+// ─── Umami page map ───────────────────────────────────────────
+const PAGE_MAP: Record<QuizPhase, { url: string; title: string }> = {
+  intro:    { url: '/stress-test',            title: 'Stress Test – Intro' },
+  'step-1': { url: '/stress-test/q1-size',    title: 'Stress Test – Q1: Company size' },
+  'step-2': { url: '/stress-test/q2-ambition',title: 'Stress Test – Q2: Growth ambition' },
+  'step-3': { url: '/stress-test/q3-team',    title: 'Stress Test – Q3: Team & pipeline' },
+  results:  { url: '/stress-test/results',    title: 'Stress Test – Results' },
 }
 
-// ─── Wrapper layout for steps ────────────────────────────────
-function StepLayout({
-  title,
-  subtitle,
-  children,
-  step,
-}: {
-  title: string
-  subtitle: string
-  children: React.ReactNode
-  step: number
-}) {
+// ─── Step shell ───────────────────────────────────────────────
+function QuizShell({ step, children }: { step: number; children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-surface-warm flex flex-col">
-      {/* Mini header */}
       <div className="bg-white border-b border-ink/8">
-        <div className="mx-auto max-w-2xl px-6 h-14 flex items-center justify-between">
+        <div className="mx-auto max-w-xl px-6 h-14 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2">
             <Image src="/teravictus-logo.png" alt="Teravictus" width={28} height={28} className="h-7 w-auto" />
             <span className="text-sm font-semibold text-ink">Teravictus</span>
@@ -128,21 +101,12 @@ function StepLayout({
         </div>
       </div>
 
-      <div className="flex-1 flex items-start justify-center px-6 py-10">
-        <div className="w-full max-w-2xl">
-          {/* Progress */}
-          <div className="mb-8">
-            <StepIndicator currentStep={step} totalSteps={5} />
+      <div className="flex-1 flex items-start justify-center px-6 py-12">
+        <div className="w-full max-w-xl">
+          <div className="mb-10">
+            <StepIndicator currentStep={step} totalSteps={3} />
           </div>
-
-          {/* Step card */}
-          <div className="bg-white rounded-2xl border border-ink/8 shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-ink/6 bg-surface-muted/40">
-              <h1 className="font-heading text-xl tracking-tight text-ink">{title}</h1>
-              <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
-            </div>
-            <div className="px-6 py-6">{children}</div>
-          </div>
+          {children}
         </div>
       </div>
     </div>
@@ -151,103 +115,33 @@ function StepLayout({
 
 // ─── Main component ───────────────────────────────────────────
 export default function AssessmentFlow() {
-  const [state, dispatch] = useReducer(
-    reducer,
-    INITIAL_STATE,
-    // Initializer: restore from sessionStorage on first render (SSR-safe)
-    (init: AssessmentState): AssessmentState => {
-      if (typeof window === 'undefined') return init
-      const saved = loadSession()
-      // Don't restore 'calculating' — always go back to step-5
-      if (saved && saved.phase === 'calculating') return { ...saved, phase: 'step-5' }
-      return saved ?? init
-    },
-  )
+  const [state, dispatch] = useReducer(reducer, INITIAL, (init) => {
+    if (typeof window === 'undefined') return init
+    return loadSession() ?? init
+  })
 
-  // Persist to sessionStorage on every state change
+  useEffect(() => { saveSession(state) }, [state])
+
   useEffect(() => {
-    saveSession(state)
-  }, [state])
-
-  // ── Lead capture submit (Step 1)
-  const handleLeadSubmit = useCallback(async (lead: LeadInput) => {
-    dispatch({ type: 'SET_LEAD', lead })
-    // Fire lead API — non-blocking: we advance even if it fails
-    fetch('/api/stress-test/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lead),
-    }).catch((err) => console.error('[AssessmentFlow] Lead API error:', err))
-
-    dispatch({ type: 'SET_PHASE', phase: 'step-2' })
-  }, [])
-
-  // ── Final submit (Step 5)
-  const handleFinalSubmit = useCallback(async () => {
-    dispatch({ type: 'SET_PHASE', phase: 'calculating' })
-
-    // Fill in any optional defaults before submitting
-    const fullInput = {
-      lead: state.lead,
-      company: {
-        expansionContributionPct: 15,
-        ...state.company,
-      },
-      team: {
-        sdrCount: 0,
-        plannedHiresTotal: 0,
-        managerSpanBand: '6-7',
-        territoryModel: 'hybrid',
-        ...state.team,
-      },
-      pipeline: {
-        pipelineCoverageRatio: 3.0,
-        concentrationRiskPct: 20,
-        ...state.pipeline,
-      },
-      stress: {
-        hiringDelayed: false,
-        hiringDelayQuarters: 1,
-        winRateDropPct: 10,
-        salesCycleExpansionPct: 15,
-        aspDeclinePct: 10,
-        pipelineDropPct: 20,
-        attritionIncreasePct: 5,
-        ...state.stress,
-      },
-    }
-
-    try {
-      const res = await fetch('/api/stress-test/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fullInput),
-      })
-      const json = await res.json()
-      if (!res.ok || !json.ok) {
-        dispatch({ type: 'SET_ERROR', error: json.error ?? 'Calculation failed. Please try again.' })
-        return
-      }
-      clearSession() // Clear session — results don't need persistence
-      dispatch({ type: 'SET_OUTPUT', output: json.output as AssessmentOutput })
-
-      // Non-blocking: generate and email the PDF report to the user
-      fetch('/api/stress-test/email-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: fullInput, output: json.output }),
-      }).catch((err) => console.error('[AssessmentFlow] Email-PDF error:', err))
-    } catch {
-      dispatch({ type: 'SET_ERROR', error: 'Network error. Please check your connection and try again.' })
-    }
-  }, [state])
+    const p = PAGE_MAP[state.phase]
+    if (p) trackPage(p.url, p.title)
+  }, [state.phase])
 
   const handleReset = useCallback(() => {
     clearSession()
     dispatch({ type: 'RESET' })
   }, [])
 
-  // ── Render: intro
+  // ── Compute results client-side (no API call)
+  const handleViewResults = useCallback(() => {
+    const { arrBand, ambition, attainment, pipelineHealth } = state
+    if (!arrBand || !ambition || !attainment || !pipelineHealth) return
+    const output = scoreQuiz({ arrBand, ambition, attainment, pipelineHealth })
+    clearSession()
+    dispatch({ type: 'SET_OUTPUT', output })
+  }, [state])
+
+  // ── Intro (untouched) ──────────────────────────────────────
   if (state.phase === 'intro') {
     return (
       <div className="min-h-screen bg-surface-warm flex flex-col">
@@ -261,170 +155,208 @@ export default function AssessmentFlow() {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-6 py-16">
-          <div className="max-w-2xl w-full text-center">
-            <span className="inline-block rounded-full bg-brand-100 text-brand-700 text-xs font-semibold px-3 py-1 mb-6 uppercase tracking-wide">
-              Free Assessment
-            </span>
-            <h1 className="font-heading text-4xl md:text-5xl tracking-tight text-ink mb-4">
-              Revenue Plan Stress Test
-            </h1>
-            <p className="text-lg text-ink-muted leading-relaxed mb-8 max-w-xl mx-auto">
-              Pressure-test your growth plan, headcount capacity, and forecast resilience in under 10 minutes.
-            </p>
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-5xl flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-left">
-              {[
-                { icon: '◎', title: 'Confidence score', body: 'Revenue plan achievability rated 0–100 with breakdown' },
-                { icon: '◈', title: '4-scenario model', body: 'Base, upside, downside, and stressed downside cases' },
-                { icon: '◉', title: 'Strategic report', body: 'Downloadable PDF with charts, benchmarks, and actions' },
-              ].map((f) => (
-                <div key={f.title} className="rounded-xl border border-ink/8 bg-white px-4 py-4">
-                  <span className="text-brand-500 text-lg">{f.icon}</span>
-                  <p className="mt-2 text-sm font-semibold text-ink">{f.title}</p>
-                  <p className="mt-1 text-xs text-ink-muted leading-relaxed">{f.body}</p>
-                </div>
-              ))}
+            {/* Left: text + CTA */}
+            <div className="lg:w-[420px] shrink-0 text-center lg:text-left">
+              <span className="inline-block rounded-full bg-brand-100 text-brand-700 text-xs font-semibold px-3 py-1 mb-5 uppercase tracking-wide">
+                Free · 2 minutes
+              </span>
+              <h1 className="font-heading text-4xl md:text-5xl tracking-tight text-ink mb-4 leading-tight">
+                Revenue Plan<br />Stress Test
+              </h1>
+              <p className="text-base text-ink leading-relaxed mb-8">
+                Know where your plan is fragile — before the quarter exposes it.
+              </p>
+
+              <button
+                onClick={() => dispatch({ type: 'SET_PHASE', phase: 'step-1' })}
+                className="rounded-lg bg-brand-500 px-8 py-4 text-sm font-semibold text-white hover:bg-brand-600 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+              >
+                Begin Free Assessment →
+              </button>
+              <p className="mt-3 text-sm text-ink font-medium">
+                No credit card. No company secrets required.
+              </p>
             </div>
 
-            <button
-              onClick={() => dispatch({ type: 'SET_PHASE', phase: 'step-1' })}
-              className="rounded-lg bg-brand-500 px-8 py-4 text-sm font-semibold text-white hover:bg-brand-600 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-            >
-              Begin the Assessment →
-            </button>
-            <p className="mt-3 text-xs text-ink-faint">
-              For CROs, VP RevOps, and GTM leaders. No credit card.
-            </p>
+            {/* Right: sample report preview */}
+            <div className="flex-1 w-full min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-widest text-ink-faint mb-3 text-center lg:text-left">
+                Sample report
+              </p>
+              <div className="rounded-2xl border border-ink/10 bg-white shadow-md overflow-hidden">
+
+                {/* Score block */}
+                <div className="bg-amber-50 border-b border-amber-100 px-5 py-5">
+                  <div className="flex items-center gap-5">
+                    <svg width="88" height="88" viewBox="0 0 140 140" className="shrink-0">
+                      <circle cx="70" cy="70" r="52" fill="none" stroke="#E5E7EB" strokeWidth="10"
+                        strokeDasharray={`${(2 * Math.PI * 52 * 270) / 360} ${2 * Math.PI * 52}`}
+                        strokeLinecap="round" transform="rotate(135 70 70)" />
+                      <circle cx="70" cy="70" r="52" fill="none" stroke="#F59E0B" strokeWidth="10"
+                        strokeDasharray={`${(2 * Math.PI * 52 * 270) / 360} ${2 * Math.PI * 52}`}
+                        strokeDashoffset={(2 * Math.PI * 52 * 270) / 360 * (1 - 0.63)}
+                        strokeLinecap="round" transform="rotate(135 70 70)" />
+                      <text x="70" y="66" textAnchor="middle" dominantBaseline="middle" fontSize="30" fontWeight="700" fill="#1A1A1A">63</text>
+                      <text x="70" y="86" textAnchor="middle" fontSize="11" fill="#6B7280">/ 100</text>
+                    </svg>
+                    <div className="flex-1 min-w-0">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5 mb-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        Fragile
+                      </span>
+                      <p className="text-sm font-semibold text-ink leading-snug">Your plan is executable but exposed to compounding risk.</p>
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {[{ label: 'Confidence', val: 71 }, { label: 'Capacity', val: 58 }, { label: 'Resilience', val: 62 }].map(({ label, val }) => (
+                          <div key={label} className="rounded-lg bg-white/80 border border-amber-100 px-2.5 py-2">
+                            <p className="text-base font-bold text-ink">{val}</p>
+                            <p className="text-xs text-ink-muted">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scenario tiles */}
+                <div className="px-5 py-4 border-b border-ink/6">
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { label: 'Best',  value: '$5.8M', val: 'text-green-600', bg: 'bg-green-50',  border: 'border-green-100' },
+                      { label: 'Plan',  value: '$4.2M', val: 'text-brand-600', bg: 'bg-brand-50',  border: 'border-brand-100' },
+                      { label: 'Low',   value: '$3.1M', val: 'text-amber-600', bg: 'bg-amber-50',  border: 'border-amber-100' },
+                      { label: 'Worst', value: '$1.9M', val: 'text-red-500',   bg: 'bg-red-50',    border: 'border-red-100'   },
+                    ].map(({ label, value, val, bg, border }) => (
+                      <div key={label} className={`rounded-xl border ${border} ${bg} px-2 py-3 text-center`}>
+                        <p className={`text-base font-bold tabular-nums ${val}`}>{value}</p>
+                        <p className="text-xs text-ink-faint mt-0.5">{label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Top risk */}
+                <div className="px-5 py-4">
+                  <div className="flex items-center gap-3 rounded-lg bg-red-50 border border-red-100 px-3.5 py-3">
+                    <span className="text-red-500 text-sm shrink-0">▲</span>
+                    <p className="text-xs font-semibold text-ink">Pipeline too thin to hit the base case</p>
+                  </div>
+                  <p className="text-sm font-semibold text-brand-600 mt-3 text-center">4 recommendations in your report →</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
     )
   }
 
-  // ── Render: results
+  // ── Results ────────────────────────────────────────────────
   if (state.phase === 'results' && state.output) {
-    const fullInput = {
-      lead: state.lead,
-      company: { expansionContributionPct: 15, ...state.company } as CompanyProfileInput,
-      team: { sdrCount: 0, plannedHiresTotal: 0, managerSpanBand: '6-7' as const, territoryModel: 'hybrid' as const, ...state.team } as TeamInput,
-      pipeline: { pipelineCoverageRatio: 3.0, concentrationRiskPct: 20, ...state.pipeline } as PipelineInput,
-      stress: { hiringDelayed: false, hiringDelayQuarters: 1 as const, winRateDropPct: 10, salesCycleExpansionPct: 15, aspDeclinePct: 10, pipelineDropPct: 20, attritionIncreasePct: 5, ...state.stress } as StressScenariosInput,
-    }
     return (
       <ResultsDashboard
         output={state.output}
-        input={fullInput}
         onRestart={handleReset}
       />
     )
   }
 
-  // ── Render: calculating
-  if (state.phase === 'calculating') {
+  // ── Step 1: Company size ───────────────────────────────────
+  if (state.phase === 'step-1') {
     return (
-      <div className="min-h-screen bg-surface-warm flex items-center justify-center px-6">
-        <div className="text-center max-w-sm">
-          <div className="flex justify-center mb-6">
-            <div className="relative h-16 w-16">
-              <svg className="animate-spin h-16 w-16 text-brand-200" fill="none" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-              </svg>
-              <svg className="animate-spin h-16 w-16 text-brand-500 absolute inset-0" style={{ animationDuration: '0.75s' }} fill="none" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M4 12a8 8 0 018-8v2a6 6 0 00-6 6H4z" />
-              </svg>
-            </div>
-          </div>
-          <h2 className="font-heading text-2xl text-ink mb-2">Running your assessment</h2>
-          <p className="text-sm text-ink-muted">Modeling scenarios, scoring your plan, and generating recommendations…</p>
-        </div>
-      </div>
+      <QuizShell step={1}>
+        <QuizStep<QuizARRBand>
+          question="How big is your business today?"
+          options={[
+            { value: 'under-1m', label: 'Under $1M ARR' },
+            { value: '1m-5m',   label: '$1M–$5M ARR' },
+            { value: '5m-20m',  label: '$5M–$20M ARR' },
+            { value: '20m-50m', label: '$20M–$50M ARR' },
+            { value: '50m-plus',label: '$50M+ ARR' },
+          ]}
+          value={state.arrBand}
+          onChange={(v) => dispatch({ type: 'SET_ARR', arrBand: v })}
+          autoAdvance
+          onAdvance={() => dispatch({ type: 'SET_PHASE', phase: 'step-2' })}
+        />
+      </QuizShell>
     )
   }
 
-  // ── Render: step forms
-  const stepNum = phaseToStep(state.phase)
+  // ── Step 2: Growth ambition ────────────────────────────────
+  if (state.phase === 'step-2') {
+    return (
+      <QuizShell step={2}>
+        <QuizStep<QuizAmbition>
+          question="How ambitious is your growth target right now?"
+          options={[
+            { value: 'conservative',    label: 'Conservative',    description: 'We can likely hit it with our current setup' },
+            { value: 'moderate',        label: 'Moderate',        description: "It's a stretch, but realistic" },
+            { value: 'aggressive',      label: 'Aggressive',      description: 'We need several things to go right' },
+            { value: 'very-aggressive', label: 'Very aggressive', description: 'It depends on near-perfect execution' },
+          ]}
+          value={state.ambition}
+          onChange={(v) => dispatch({ type: 'SET_AMBITION', ambition: v })}
+          autoAdvance
+          onAdvance={() => dispatch({ type: 'SET_PHASE', phase: 'step-3' })}
+        />
+      </QuizShell>
+    )
+  }
 
-  return (
-    <>
-      {state.phase === 'step-1' && (
-        <StepLayout
-          step={1}
-          title="Let's get started"
-          subtitle="Enter your email to begin. We'll send your completed report here."
-        >
-          <StepLeadCapture
-            values={state.lead}
-            onSubmit={handleLeadSubmit}
+  // ── Step 3: Attainment + pipeline ─────────────────────────
+  if (state.phase === 'step-3') {
+    const bothAnswered = state.attainment !== null && state.pipelineHealth !== null
+    return (
+      <QuizShell step={3}>
+        <div className="space-y-10">
+          <QuizStep<QuizAttainment>
+            question="How often does your team hit its sales goal?"
+            options={[
+              { value: 'rarely',         label: 'Rarely' },
+              { value: 'sometimes',      label: 'Sometimes' },
+              { value: 'often',          label: 'Often' },
+              { value: 'most',           label: 'Most months / quarters' },
+              { value: 'almost-always',  label: 'Almost always' },
+            ]}
+            value={state.attainment}
+            onChange={(v) => dispatch({ type: 'SET_ATTAINMENT', attainment: v })}
           />
-        </StepLayout>
-      )}
 
-      {state.phase === 'step-2' && (
-        <StepLayout
-          step={2}
-          title="About your company and plan"
-          subtitle="Tell us what you're trying to hit and how your business sells. Estimates are fine."
-        >
-          <StepCompanyProfile
-            values={state.company}
-            onChange={(company) => dispatch({ type: 'SET_COMPANY', company })}
-            onNext={() => dispatch({ type: 'SET_PHASE', phase: 'step-3' })}
-            onBack={() => dispatch({ type: 'SET_PHASE', phase: 'step-1' })}
+          <QuizStep<QuizPipelineHealth>
+            question="How healthy does your pipeline feel right now?"
+            options={[
+              { value: 'clearly-short',   label: "We're clearly short on future deals" },
+              { value: 'thin',            label: 'We have some pipeline, but it feels thin' },
+              { value: 'probably-enough', label: 'We probably have enough if deals move as expected' },
+              { value: 'solid',           label: 'We have solid coverage' },
+              { value: 'more-than-enough',label: 'We have more than enough pipeline for the target' },
+            ]}
+            value={state.pipelineHealth}
+            onChange={(v) => dispatch({ type: 'SET_PIPELINE', pipelineHealth: v })}
           />
-        </StepLayout>
-      )}
 
-      {state.phase === 'step-3' && (
-        <StepLayout
-          step={3}
-          title="Your sales team"
-          subtitle="Tell us about the people responsible for hitting the revenue target."
-        >
-          <StepTeamCoverage
-            values={state.team}
-            onChange={(team) => dispatch({ type: 'SET_TEAM', team })}
-            onNext={() => dispatch({ type: 'SET_PHASE', phase: 'step-4' })}
-            onBack={() => dispatch({ type: 'SET_PHASE', phase: 'step-2' })}
-          />
-        </StepLayout>
-      )}
+          <button
+            onClick={handleViewResults}
+            disabled={!bothAnswered}
+            className="w-full rounded-xl bg-brand-500 px-6 py-4 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+          >
+            View Results →
+          </button>
+          <button
+            type="button"
+            onClick={() => dispatch({ type: 'SET_PHASE', phase: 'step-2' })}
+            className="w-full text-center text-sm text-ink-muted hover:text-ink transition-colors py-1"
+          >
+            ← Back
+          </button>
+        </div>
+      </QuizShell>
+    )
+  }
 
-      {state.phase === 'step-4' && (
-        <StepLayout
-          step={4}
-          title="Your pipeline and forecast"
-          subtitle="Tell us about the deals in progress and how you predict whether you'll hit the number."
-        >
-          <StepPipeline
-            values={state.pipeline}
-            onChange={(pipeline) => dispatch({ type: 'SET_PIPELINE', pipeline })}
-            onNext={() => dispatch({ type: 'SET_PHASE', phase: 'step-5' })}
-            onBack={() => dispatch({ type: 'SET_PHASE', phase: 'step-3' })}
-          />
-        </StepLayout>
-      )}
-
-      {state.phase === 'step-5' && (
-        <StepLayout
-          step={5}
-          title="What-if scenarios"
-          subtitle="Choose the risks you want to model. The report will show what happens if these materialize."
-        >
-          {state.error && (
-            <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-              <p className="text-sm text-red-700 font-medium">{state.error}</p>
-            </div>
-          )}
-          <StepStressScenarios
-            values={state.stress}
-            onChange={(stress) => dispatch({ type: 'SET_STRESS', stress })}
-            onSubmit={handleFinalSubmit}
-            onBack={() => dispatch({ type: 'SET_PHASE', phase: 'step-4' })}
-            submitting={false}
-          />
-        </StepLayout>
-      )}
-    </>
-  )
+  return null
 }

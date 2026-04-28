@@ -182,10 +182,10 @@ export function calcOverallScore(
 export function getStatusLabel(
   overallScore: number,
 ): AssessmentOutput['statusLabel'] {
-  if (overallScore >= STATUS_THRESHOLDS.defensible) return 'Defensible'
-  if (overallScore >= STATUS_THRESHOLDS.fragile) return 'Fragile'
-  if (overallScore >= STATUS_THRESHOLDS.atRisk) return 'At Risk'
-  return 'Critical Risk'
+  if (overallScore >= STATUS_THRESHOLDS.stable)    return 'Stable'
+  if (overallScore >= STATUS_THRESHOLDS.watchlist) return 'Watchlist'
+  if (overallScore >= STATUS_THRESHOLDS.fragile)   return 'Fragile'
+  return 'Exposed'
 }
 
 // ─────────────────────────────────────────────────────────────

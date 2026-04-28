@@ -15,27 +15,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Validate input
-    const parseResult = AssessmentInputSchema.safeParse(body)
-    if (!parseResult.success) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid input for PDF generation' },
-        { status: 400 },
-      )
+    const output: AssessmentOutput | undefined = body.output
+    if (!output) {
+      return NextResponse.json({ ok: false, error: 'Missing output' }, { status: 400 })
     }
 
-    const input = parseResult.data as AssessmentInput
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const input: any = { lead: { email: body.lead?.email ?? '', company: body.lead?.company, firstName: body.lead?.firstName } }
 
-    // Re-run assessment to ensure freshness (or accept pre-computed output)
-    let output: AssessmentOutput
-    if (body.output) {
-      output = body.output as AssessmentOutput
-    } else {
-      output = runAssessment(input)
-    }
-
-    // Dynamically import @react-pdf/renderer only in this API route
-    // This ensures it is never bundled for the browser side.
     const { renderToBuffer } = await import('@react-pdf/renderer')
     const { buildReportDocument } = await import('@/components/stress-test/pdf/ReportDocument')
 

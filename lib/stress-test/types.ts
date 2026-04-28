@@ -188,7 +188,7 @@ export interface ScenarioResult {
 
 export type RiskSeverity = 'high' | 'medium' | 'low'
 export type RecommendationUrgency = 'immediate' | 'near-term' | 'strategic'
-export type StatusLabel = 'Defensible' | 'Fragile' | 'At Risk' | 'Critical Risk'
+export type StatusLabel = 'Stable' | 'Watchlist' | 'Fragile' | 'Exposed'
 
 export interface RiskDriver {
   label: string

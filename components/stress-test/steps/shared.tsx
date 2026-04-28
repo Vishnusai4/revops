@@ -16,6 +16,7 @@ interface RadioOption<T extends string> {
 interface RadioGroupProps<T extends string> {
   label: string
   hint?: string
+  error?: boolean
   options: RadioOption<T>[]
   value: T | undefined
   onChange: (v: T) => void
@@ -25,6 +26,7 @@ interface RadioGroupProps<T extends string> {
 export function RadioGroup<T extends string>({
   label,
   hint,
+  error,
   options,
   value,
   onChange,
@@ -38,9 +40,10 @@ export function RadioGroup<T extends string>({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-ink mb-1.5">
-        {label}
-      </label>
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="block text-sm font-medium text-ink">{label}</label>
+        {error && <span className="text-xs font-medium text-red-500">Required</span>}
+      </div>
       {hint && <p className="text-xs text-ink-faint mb-2">{hint}</p>}
       <div className={`grid ${colClass} gap-2`}>
         {options.map((opt) => {
@@ -72,6 +75,7 @@ export function RadioGroup<T extends string>({
 interface NumberFieldProps {
   label: string
   hint?: string
+  error?: boolean
   value: number | ''
   onChange: (v: number) => void
   min?: number
@@ -80,10 +84,13 @@ interface NumberFieldProps {
   suffix?: string
 }
 
-export function NumberField({ label, hint, value, onChange, min = 0, max, placeholder, suffix }: NumberFieldProps) {
+export function NumberField({ label, hint, error, value, onChange, min = 0, max, placeholder, suffix }: NumberFieldProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="block text-sm font-medium text-ink">{label}</label>
+        {error && <span className="text-xs font-medium text-red-500">Required</span>}
+      </div>
       {hint && <p className="text-xs text-ink-faint mb-2">{hint}</p>}
       <div className="relative">
         <input
