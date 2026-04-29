@@ -51,10 +51,10 @@ const faqJsonLd = {
     },
     {
       '@type': 'Question',
-      name: 'What is the Teravictus beta program?',
+      name: 'What is the Teravictus pilot program?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'A hands-on, 4 to 5 month engagement where we overhaul your revenue systems end to end. Discounted pricing for beta partners with a money-back guarantee.',
+        text: 'A hands-on, 4 to 5 month engagement where we overhaul your revenue systems end to end. Discounted pricing for pilot partners with a money-back guarantee.',
       },
     },
     {

@@ -6,7 +6,7 @@ import Image from 'next/image'
 const navLinks = [
   { label: 'Try the free Revenue Stress Test', href: '/stress-test' },
   { label: 'Conceptual Demo', href: '/context-simulator' },
-  { label: 'Beta Program', href: '#beta' },
+  { label: 'Pilot Program', href: '#beta' },
   { label: 'Who It\u2019s For', href: '#built-for' },
   { label: 'About', href: '#about' },
 ]

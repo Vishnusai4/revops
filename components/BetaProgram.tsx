@@ -54,10 +54,10 @@ export default function BetaProgram() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <AnimateIn>
           <h2 className="font-heading text-4xl tracking-tight text-ink sm:text-5xl max-w-2xl">
-            Beta Program
+            Pilot Program
           </h2>
           <p className="mt-4 text-lg text-ink-muted max-w-xl">
-            We&apos;re working with a small number of B2B SaaS revenue teams to build and validate the core product together. You get the full system at beta pricing. Beta partners carry forward discounted lifetime terms as the product scales. We&apos;re looking for teams who want to compound, not just try.
+            We&apos;re working with a small number of B2B SaaS revenue teams to build and validate the core product together. You get the full system at pilot pricing. Pilot partners carry forward discounted lifetime terms as the product scales. We&apos;re looking for teams who want to compound, not just try.
           </p>
         </AnimateIn>
 
@@ -130,7 +130,7 @@ export default function BetaProgram() {
               href="#contact"
               className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-600 transition-colors"
             >
-              Apply for the Beta
+              Apply for the Pilot
             </a>
           </div>
         </AnimateIn>
@@ -141,7 +141,7 @@ export default function BetaProgram() {
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-muted">Pricing</h3>
               <p className="mt-2 text-sm text-ink-body leading-relaxed">
-                You pay monthly. Discounted for beta partners. Details shared over conversation.
+                You pay monthly. Discounted for pilot partners. Details shared over conversation.
               </p>
             </div>
             <div>

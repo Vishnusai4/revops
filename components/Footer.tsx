@@ -1,5 +1,5 @@
 const navSections = [
-  { label: 'Beta Program', href: '#beta' },
+  { label: 'Pilot Program', href: '#beta' },
   { label: 'What We Do', href: '#what-we-do' },
   { label: 'Who It\u2019s For', href: '#built-for' },
   { label: 'About', href: '#about' },
