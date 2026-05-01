@@ -6,16 +6,16 @@ import type { LeadInput, RoleOption } from '@/lib/stress-test/types'
 interface Props {
   values: LeadInput
   onSubmit: (lead: LeadInput) => Promise<void>
-  onBack?: () => void
 }
 
 const ROLES: RoleOption[] = ['CRO', 'VP RevOps', 'RevOps', 'Sales Ops', 'Founder/CEO', 'Finance', 'Other']
 
 function validateEmail(email: string): boolean {
+  // RFC 5322 simplified; accepts all domains including personal emails
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
 }
 
-export default function StepLeadCapture({ values, onSubmit, onBack }: Props) {
+export default function StepLeadCapture({ values, onSubmit }: Props) {
   const [form, setForm] = useState<LeadInput>(values)
   const [submitting, setSubmitting] = useState(false)
   const [emailError, setEmailError] = useState('')
@@ -27,7 +27,7 @@ export default function StepLeadCapture({ values, onSubmit, onBack }: Props) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!validateEmail(form.email)) {
+    if (!validateEmail(form.email ?? '')) {
       setEmailError('Please enter a valid email address.')
       return
     }
@@ -65,7 +65,7 @@ export default function StepLeadCapture({ values, onSubmit, onBack }: Props) {
             <p className="mt-1.5 text-xs text-red-600">{emailError}</p>
           ) : (
             <p className="mt-1.5 text-xs text-ink-faint">
-              We&apos;ll send your full PDF report here. Use any email you like.
+              Use any email you'd like the report sent to.
             </p>
           )}
         </div>
@@ -121,25 +121,16 @@ export default function StepLeadCapture({ values, onSubmit, onBack }: Props) {
         </div>
       </div>
 
-      <div className="mt-8 space-y-3">
+      <div className="mt-8">
         <button
           type="submit"
           disabled={submitting}
           className="w-full rounded-lg bg-brand-500 px-6 py-3.5 text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
-          {submitting ? 'Generating your report…' : 'Get My Free Report →'}
+          {submitting ? 'Starting your assessment…' : 'Start the Assessment →'}
         </button>
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="w-full rounded-lg border border-ink/10 px-6 py-3 text-sm text-ink-muted hover:text-ink hover:border-ink/20 transition-colors"
-          >
-            ← Back
-          </button>
-        )}
-        <p className="text-center text-xs text-ink-faint pt-1">
-          No credit card. No sales pitch. We never share your information.
+        <p className="mt-3 text-center text-xs text-ink-faint">
+          Takes under 10 minutes. No credit card. No sales pitch.
         </p>
       </div>
     </form>

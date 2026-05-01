@@ -11,10 +11,7 @@ import { z } from 'zod'
 // ─── STEP 1: LEAD ────────────────────────────────────────────
 
 export const LeadSchema = z.object({
-  email: z
-    .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+  email: z.string().email().optional().or(z.literal('')),
   firstName: z.string().max(100).optional().or(z.literal('')),
   company: z.string().max(200).optional().or(z.literal('')),
   role: z

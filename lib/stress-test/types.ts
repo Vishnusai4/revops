@@ -9,7 +9,7 @@
 // ─── FORM INPUTS ────────────────────────────────────────────
 
 export interface LeadInput {
-  email: string
+  email?: string
   firstName?: string
   company?: string
   role?: RoleOption
@@ -188,7 +188,7 @@ export interface ScenarioResult {
 
 export type RiskSeverity = 'high' | 'medium' | 'low'
 export type RecommendationUrgency = 'immediate' | 'near-term' | 'strategic'
-export type StatusLabel = 'Stable' | 'Watchlist' | 'Fragile' | 'Exposed'
+export type StatusLabel = 'Defensible' | 'Fragile' | 'At Risk' | 'Critical Risk'
 
 export interface RiskDriver {
   label: string

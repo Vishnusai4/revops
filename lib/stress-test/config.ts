@@ -207,10 +207,10 @@ export const SCORING_WEIGHTS = {
 // ─── STATUS LABEL THRESHOLDS ─────────────────────────────────
 // overallScore → status label
 export const STATUS_THRESHOLDS = {
-  stable:    80,  // ≥80 → Stable
-  watchlist: 60,  // 60–79 → Watchlist
-  fragile:   40,  // 40–59 → Fragile
-  // <40 → Exposed
+  defensible: 72,  // ≥72 → Defensible
+  fragile: 50,     // 50–71 → Fragile
+  atRisk: 30,      // 30–49 → At Risk
+  // <30 → Critical Risk
 } as const
 
 // ─── BENCHMARK RANGES ────────────────────────────────────────

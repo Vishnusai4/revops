@@ -57,13 +57,13 @@ export async function POST(request: NextRequest) {
     const timestamp = new Date().toISOString()
 
     // Duplicate check
-    if (isDuplicate(lead.email)) {
+    if (isDuplicate(lead.email ?? '')) {
       // Return success to the user — no UX penalty — but skip re-sending emails
       console.log(`[stress-test/lead] Duplicate submission skipped: ${lead.email}`)
       return NextResponse.json({ ok: true, duplicate: true })
     }
 
-    registerSubmission(lead.email)
+    registerSubmission(lead.email ?? "")
 
     // Log to console (captured by Vercel logs)
     console.log('=== Stress Test Lead ===')
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       // 2. Confirmation email to user
       const { data: confirmData, error: confirmError } = await resend.emails.send({
         from: fromAddress,
-        to: [lead.email],
+        to: [lead.email!],
         replyTo: 'vishnu@teravictus.com',
         subject: 'Your Revenue Plan Stress Test is starting',
         html: confirmationEmail(lead),

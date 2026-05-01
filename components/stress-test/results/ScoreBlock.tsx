@@ -9,13 +9,13 @@ interface Props {
 
 function getStatusConfig(status: AssessmentOutput['statusLabel']) {
   switch (status) {
-    case 'Stable':
+    case 'Defensible':
       return { bg: 'bg-green-50', border: 'border-green-200', ring: 'bg-green-500', text: 'text-green-700', badge: 'bg-green-100 text-green-800' }
-    case 'Watchlist':
-      return { bg: 'bg-amber-50', border: 'border-amber-200', ring: 'bg-amber-500', text: 'text-amber-700', badge: 'bg-amber-100 text-amber-800' }
     case 'Fragile':
+      return { bg: 'bg-amber-50', border: 'border-amber-200', ring: 'bg-amber-500', text: 'text-amber-700', badge: 'bg-amber-100 text-amber-800' }
+    case 'At Risk':
       return { bg: 'bg-orange-50', border: 'border-orange-200', ring: 'bg-orange-500', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-800' }
-    case 'Exposed':
+    case 'Critical Risk':
       return { bg: 'bg-red-50', border: 'border-red-200', ring: 'bg-red-500', text: 'text-red-700', badge: 'bg-red-100 text-red-800' }
   }
 }
@@ -81,7 +81,7 @@ export default function ScoreBlock({ output, companyName }: Props) {
       <div className="flex flex-col md:flex-row items-start gap-6 md:gap-10">
         {/* Dial + status */}
         <div className="flex flex-col items-center gap-3 shrink-0">
-          <ScoreDial score={output.overallScore} color={`text-${output.statusLabel === 'Stable' ? 'green' : output.statusLabel === 'Watchlist' ? 'amber' : output.statusLabel === 'Fragile' ? 'orange' : 'red'}-500`} />
+          <ScoreDial score={output.overallScore} color={`text-${output.statusLabel === 'Defensible' ? 'green' : output.statusLabel === 'Fragile' ? 'amber' : output.statusLabel === 'At Risk' ? 'orange' : 'red'}-500`} />
           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${cfg.badge}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${cfg.ring}`} />
             {output.statusLabel}
@@ -94,13 +94,13 @@ export default function ScoreBlock({ output, companyName }: Props) {
             Revenue Plan Confidence Score
           </p>
           <h2 className="font-heading text-2xl md:text-3xl tracking-tight text-ink mb-3">
-            {output.statusLabel === 'Stable'
-              ? 'Your plan looks achievable with manageable risk.'
-              : output.statusLabel === 'Watchlist'
-              ? 'Your plan is workable, but a few weak spots could slow execution.'
+            {output.statusLabel === 'Defensible'
+              ? 'Your plan has structural integrity.'
               : output.statusLabel === 'Fragile'
-              ? 'Your plan is executable, but exposed to compounding risk.'
-              : 'Your target depends on too many things going right.'}
+              ? 'Your plan is executable but exposed.'
+              : output.statusLabel === 'At Risk'
+              ? 'Your plan has material gaps to close.'
+              : 'Your plan needs significant structural work.'}
           </h2>
           <p className="text-sm text-ink-body leading-relaxed">
             {output.executiveSummary}

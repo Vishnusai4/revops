@@ -16,7 +16,6 @@ interface RadioOption<T extends string> {
 interface RadioGroupProps<T extends string> {
   label: string
   hint?: string
-  error?: boolean
   options: RadioOption<T>[]
   value: T | undefined
   onChange: (v: T) => void
@@ -26,7 +25,6 @@ interface RadioGroupProps<T extends string> {
 export function RadioGroup<T extends string>({
   label,
   hint,
-  error,
   options,
   value,
   onChange,
@@ -40,12 +38,10 @@ export function RadioGroup<T extends string>({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1.5">
-        <label className="block text-sm font-medium text-ink">{label}</label>
-        {error && <span className="text-xs font-medium text-red-500">Required</span>}
-      </div>
-      {hint && <p className="text-xs text-ink-faint mb-2">{hint}</p>}
-      <div className={`grid ${colClass} gap-2`}>
+      <label className="block text-base font-semibold text-ink mb-3">
+        {label}
+      </label>
+      <div className={`grid ${colClass} gap-2.5`}>
         {options.map((opt) => {
           const selected = value === opt.value
           return (
@@ -53,16 +49,13 @@ export function RadioGroup<T extends string>({
               key={opt.value}
               type="button"
               onClick={() => onChange(opt.value)}
-              className={`text-left rounded-lg border px-3.5 py-2.5 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 ${
+              className={`text-left rounded-xl border px-4 py-3.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 ${
                 selected
-                  ? 'border-brand-500 bg-brand-50 text-brand-700 font-medium'
-                  : 'border-ink/10 bg-white text-ink-body hover:border-brand-300 hover:bg-brand-50/50'
+                  ? 'border-brand-500 bg-brand-500 text-white shadow-sm'
+                  : 'border-ink/12 bg-white text-ink hover:border-brand-400 hover:bg-brand-50'
               }`}
             >
-              <span className="block font-medium text-xs leading-tight">{opt.label}</span>
-              {opt.description && (
-                <span className="block text-ink-faint text-xs mt-0.5 leading-tight">{opt.description}</span>
-              )}
+              <span className="block font-semibold text-sm leading-tight">{opt.label}</span>
             </button>
           )
         })}
@@ -75,7 +68,6 @@ export function RadioGroup<T extends string>({
 interface NumberFieldProps {
   label: string
   hint?: string
-  error?: boolean
   value: number | ''
   onChange: (v: number) => void
   min?: number
@@ -84,13 +76,10 @@ interface NumberFieldProps {
   suffix?: string
 }
 
-export function NumberField({ label, hint, error, value, onChange, min = 0, max, placeholder, suffix }: NumberFieldProps) {
+export function NumberField({ label, hint, value, onChange, min = 0, max, placeholder, suffix }: NumberFieldProps) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-1.5">
-        <label className="block text-sm font-medium text-ink">{label}</label>
-        {error && <span className="text-xs font-medium text-red-500">Required</span>}
-      </div>
+      <label className="block text-sm font-medium text-ink mb-1.5">{label}</label>
       {hint && <p className="text-xs text-ink-faint mb-2">{hint}</p>}
       <div className="relative">
         <input

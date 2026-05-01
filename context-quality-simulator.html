@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teravictus — Context Quality Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand-400: #818CF8;
+    --brand-500: #6366F1;
+    --brand-600: #4F46E5;
+    --brand-700: #4338CA;
+    --brand-bg:     rgba(99,102,241,0.06);
+    --brand-border: rgba(99,102,241,0.20);
+
+    --surface-warm:  #FAFAF8;
+    --surface-muted: #F2F1EE;
+    --surface-card:  #FFFFFF;
+    --surface-inner: #F7F6F3;
+
+    --ink:        #1A1A1A;
+    --ink-body:   #374151;
+    --ink-muted:  #6B7280;
+    --ink-faint:  #9CA3AF;
+    --ink-ghost:  #D1D5DB;
+
+    --border:     rgba(26,26,26,0.08);
+    --border-mid: rgba(26,26,26,0.12);
+    --border-str: rgba(26,26,26,0.18);
+
+    --risk-red:      #DC2626;
+    --risk-red-lt:   #FEF2F2;
+    --risk-red-b:    rgba(220,38,38,0.18);
+
+    --warn-amber:    #B45309;
+    --warn-amber-lt: #FFFBEB;
+    --warn-amber-b:  rgba(180,83,9,0.18);
+
+    --ok-green:    #15803D;
+    --ok-green-lt: #F0FDF4;
+    --ok-green-b:  rgba(21,128,61,0.18);
+
+    --font-serif: 'DM Serif Display', Georgia, serif;
+    --font-sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+    --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+
+    --r-xs: 4px;
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--surface-warm);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ════════════════════ HEADER ════════════════════ */
+  .header {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px;
+    height: 54px;
+    background: rgba(250,250,248,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-group { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+
+  .logo-img { height: 22px; width: auto; display: block; }
+
+  .hdr-sep { width: 1px; height: 18px; background: var(--border-mid); flex-shrink: 0; }
+
+  .view-title { font-size: 12.5px; color: var(--ink-muted); font-weight: 400; flex-shrink: 0; }
+
+  .demo-badge {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--brand-600);
+    background: var(--brand-bg);
+    border: 1px solid var(--brand-border);
+    padding: 2px 7px; border-radius: var(--r-xs);
+    flex-shrink: 0;
+  }
+
+  .question-bar {
+    flex: 1;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r-md);
+    padding: 6px 12px;
+    margin: 0 10px; min-width: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .q-icon { font-size: 10px; color: var(--ink-ghost); flex-shrink: 0; }
+
+  .q-text {
+    font-size: 12.5px; color: var(--ink-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .q-text em { color: var(--ink); font-style: normal; font-weight: 500; }
+
+  .hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
+  .hdr-meta { font-size: 11.5px; color: var(--ink-faint); display: flex; align-items: center; gap: 4px; }
+  .hdr-meta span { color: var(--ink-muted); }
+
+  .toggle-group {
+    display: flex;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm); overflow: hidden;
+  }
+
+  .toggle-btn {
+    padding: 4px 10px; font-size: 11px; font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: default; color: var(--ink-faint);
+    border: none; background: none;
+  }
+
+  .toggle-btn.active { background: var(--surface-card); color: var(--ink-muted); }
+
+  /* ════════════════════ STRIP ════════════════════ */
+  .strip {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+    padding: 7px 24px;
+    background: var(--surface-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .strip-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 16px;
+    font-size: 11.5px; color: var(--ink-muted);
+  }
+
+  .strip-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brand-500); flex-shrink: 0; }
+
+  .strip-sep { width: 1px; height: 14px; background: var(--border-mid); }
+
+  .savings-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700;
+    color: var(--ok-green);
+    background: var(--ok-green-lt);
+    border: 1px solid var(--ok-green-b);
+    padding: 2px 9px; border-radius: var(--r-xs);
+    margin-left: 8px;
+  }
+
+  /* ════════════════════ LAYOUT ════════════════════ */
+  .layout { display: grid; grid-template-columns: 1fr 1fr; }
+
+  .pane {
+    padding: 18px 20px 28px;
+    border-right: 1px solid var(--border);
+    opacity: 0; transform: translateY(8px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .pane:last-child { border-right: none; }
+  .pane.left  { animation-delay: 0.08s; background: var(--surface-warm); }
+  .pane.right {
+    animation-delay: 0.2s;
+    background: #FAFCFF;
+    position: relative;
+  }
+
+  .pane.right::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 15%; bottom: 15%;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, var(--brand-500), transparent);
+    opacity: 0.2;
+  }
+
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  .pane-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+
+  .mode-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: var(--r-xs); border: 1px solid;
+  }
+
+  .mode-badge.raw  { color: var(--warn-amber); background: var(--warn-amber-lt); border-color: var(--warn-amber-b); }
+  .mode-badge.norm { color: var(--brand-600);  background: var(--brand-bg);      border-color: var(--brand-border); }
+
+  .mode-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  /* ════════════════════ SECTION LABELS ════════════════════ */
+  .sec-label {
+    font-size: 9.5px; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .sec-badge {
+    display: inline-flex; align-items: center;
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 0.3px; text-transform: none;
+    color: var(--brand-600);
+    background: var(--brand-bg);
+    border: 1px solid var(--brand-border);
+    padding: 1px 6px; border-radius: var(--r-xs);
+    flex-shrink: 0;
+  }
+
+  /* ════════════════════ PANEL ════════════════════ */
+  .panel {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  .panel.strong-panel {
+    border-color: var(--brand-border);
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.06), 0 2px 12px rgba(99,102,241,0.06);
+  }
+
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px;
+    background: var(--surface-inner);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-title { font-size: 12px; font-weight: 600; color: var(--ink); letter-spacing: -0.2px; }
+
+  .panel-meta { font-size: 10.5px; color: var(--ink-faint); }
+
+  .panel-body { padding: 12px 14px; }
+
+  /* ════════════════════ MCP CARDS ════════════════════ */
+  .mcp-feed { display: flex; flex-direction: column; gap: 5px; padding: 9px 11px 7px; }
+
+  .mcp-card {
+    background: var(--surface-warm);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+
+  .mcp-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 10px;
+    background: var(--surface-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mcp-name {
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 500;
+    color: var(--brand-600); letter-spacing: -0.2px;
+  }
+
+  .tag { font-size: 9.5px; font-weight: 500; padding: 1px 6px; border-radius: 3px; border: 1px solid; }
+  .tag.warn  { color: var(--warn-amber); background: var(--warn-amber-lt); border-color: var(--warn-amber-b); }
+  .tag.err   { color: var(--risk-red);   background: var(--risk-red-lt);   border-color: var(--risk-red-b);   }
+  .tag.muted { color: var(--ink-faint);  background: var(--surface-muted); border-color: var(--border); }
+
+  .mcp-body {
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 9.7px; line-height: 1.58;
+    color: #374151; white-space: pre;
+    background: #FAFAFA;
+  }
+
+  .k  { color: #1D4ED8; }
+  .s  { color: #047857; }
+  .n  { color: #B91C1C; }
+  .c  { color: #9CA3AF; font-style: italic; }
+
+  .entity-warn {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 9.5px; padding: 2px 10px 4px;
+    color: var(--warn-amber);
+  }
+  .entity-warn.red { color: var(--risk-red); }
+
+  .feed-footer {
+    padding: 5px 11px 7px;
+    font-size: 9.5px; color: var(--ink-faint);
+    font-style: italic; text-align: center;
+    border-top: 1px solid var(--border);
+    background: var(--surface-inner);
+  }
+
+  /* ════════════════════ STATS ════════════════════ */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+
+  .stat-box {
+    background: var(--surface-inner);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm); padding: 7px 10px;
+  }
+
+  .stat-lbl { font-size: 9.5px; color: var(--ink-faint); margin-bottom: 2px; }
+
+  .stat-val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-val.warn  { color: var(--warn-amber); }
+  .stat-val.bad   { color: var(--risk-red); }
+  .stat-val.good  { color: var(--ok-green); }
+  .stat-val.brand { color: var(--brand-600); }
+  .stat-val.dim   { color: var(--ink); }
+
+  /* ════════════════════ TOKEN METER ════════════════════ */
+  .meter-wrap { margin-top: 10px; }
+
+  .meter-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-size: 10.5px; color: var(--ink-faint); margin-bottom: 5px;
+  }
+
+  .meter-val { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+
+  .meter-track {
+    height: 8px;
+    background: var(--surface-muted);
+    border-radius: 4px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .meter-fill { height: 100%; border-radius: 4px; width: 0; transition: width 1.5s cubic-bezier(.4,0,.2,1); }
+  .meter-fill.hot  { background: linear-gradient(to right, #B45309, #DC2626); }
+  .meter-fill.cool { background: linear-gradient(to right, var(--brand-700), var(--brand-500)); }
+
+  .burn-label {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 700;
+    margin-top: 5px;
+    letter-spacing: 0.2px;
+  }
+  .burn-label.bad  { color: var(--risk-red); }
+  .burn-label.good { color: var(--ok-green); }
+
+  /* ════════════════════ PILLS ════════════════════ */
+  .pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+  .pill { font-size: 10.5px; font-weight: 500; padding: 3px 9px; border-radius: var(--r-xs); border: 1px solid; }
+  .pill.bad   { color: var(--risk-red);   background: var(--risk-red-lt);   border-color: var(--risk-red-b);   }
+  .pill.warn  { color: var(--warn-amber); background: var(--warn-amber-lt); border-color: var(--warn-amber-b); }
+  .pill.good  { color: var(--ok-green);   background: var(--ok-green-lt);   border-color: var(--ok-green-b);   }
+  .pill.brand { color: var(--brand-600);  background: var(--brand-bg);      border-color: var(--brand-border); }
+  .pill.dim   { color: var(--ink-muted);  background: var(--surface-muted); border-color: var(--border); }
+
+  /* ════════════════════ CONF BADGE ════════════════════ */
+  .conf-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 600;
+    padding: 2px 8px; border-radius: var(--r-xs); border: 1px solid;
+  }
+  .conf-badge.low  { color: var(--risk-red); background: var(--risk-red-lt); border-color: var(--risk-red-b); }
+  .conf-badge.high { color: var(--ok-green); background: var(--ok-green-lt); border-color: var(--ok-green-b); }
+
+  /* ════════════════════ AI RESPONSE ════════════════════ */
+  .ai-box {
+    background: var(--surface-inner);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    font-size: 12.5px; line-height: 1.65;
+  }
+
+  .ai-box.weak { color: var(--ink-faint); }
+
+  .ai-box.strong {
+    color: var(--ink-body);
+    background: #F5F5FF;
+    border-color: var(--brand-border);
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.06), 0 4px 16px rgba(99,102,241,0.07);
+  }
+
+  .ai-annotation { font-size: 10px; font-style: italic; color: var(--ink-faint); margin-top: 7px; }
+  .ai-annotation.warn  { color: var(--warn-amber); }
+  .ai-annotation.brand { color: var(--brand-600); }
+
+  .ai-headline {
+    font-family: var(--font-serif);
+    font-size: 14.5px; font-weight: 400;
+    color: var(--ink); letter-spacing: -0.3px; margin-bottom: 9px;
+  }
+
+  .driver-list { list-style: none; display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+
+  .driver-list li { display: flex; gap: 8px; font-size: 12px; line-height: 1.55; color: var(--ink-body); }
+
+  .li-num { color: var(--brand-600); font-weight: 700; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+  .ai-cta {
+    padding-top: 9px; border-top: 1px solid var(--border);
+    font-size: 12px; line-height: 1.55; color: var(--ink-muted);
+  }
+
+  .ai-cta strong { color: var(--ink); font-weight: 600; }
+
+  /* ════════════════════ EVIDENCE CHIPS ════════════════════ */
+  .evidence-lbl {
+    font-size: 9.5px; font-weight: 600;
+    color: var(--ok-green); letter-spacing: 0.3px;
+    padding: 8px 14px 4px;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 14px 12px; }
+
+  .chip {
+    padding: 4px 10px; border-radius: var(--r-xs);
+    font-size: 11px; font-weight: 500; border: 1px solid;
+    transition: opacity 0.15s; cursor: default;
+  }
+
+  .chip.vague   { color: var(--ink-faint);  background: var(--surface-muted);  border-color: var(--border); }
+  .chip.risk    { color: var(--risk-red);    background: var(--risk-red-lt);    border-color: var(--risk-red-b);   }
+  .chip.caution { color: var(--warn-amber);  background: var(--warn-amber-lt);  border-color: var(--warn-amber-b); }
+
+  /* ════════════════════ RANKED LIST ════════════════════ */
+  .ranked-list { display: flex; flex-direction: column; gap: 5px; padding: 9px 12px 9px; }
+
+  .rank-card {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface-inner);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 9px 12px;
+    cursor: default;
+  }
+
+  .rank-card.selected {
+    background: var(--surface-card);
+    border-color: var(--brand-border);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.08), 0 2px 10px rgba(99,102,241,0.08);
+  }
+
+  .rank-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+    border: 1px solid;
+  }
+
+  .rank-num.r1 { background: var(--risk-red-lt);   color: var(--risk-red);   border-color: var(--risk-red-b);   }
+  .rank-num.r2 { background: var(--warn-amber-lt);  color: var(--warn-amber); border-color: var(--warn-amber-b); }
+  .rank-num.r3 { background: var(--ok-green-lt);    color: var(--ok-green);   border-color: var(--ok-green-b);   }
+
+  .rank-info { flex: 1; min-width: 0; }
+
+  .rank-name { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+
+  .rank-name.selected-name { color: var(--brand-600); }
+
+  .rank-driver { font-size: 10.5px; color: var(--ink-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .rank-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+
+  .rank-badge {
+    font-size: 9.5px; font-weight: 700;
+    padding: 1px 6px; border-radius: 3px; border: 1px solid;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  .rank-badge.high   { color: var(--risk-red);   background: var(--risk-red-lt);   border-color: var(--risk-red-b);   }
+  .rank-badge.medium { color: var(--warn-amber);  background: var(--warn-amber-lt); border-color: var(--warn-amber-b); }
+  .rank-badge.low    { color: var(--ok-green);    background: var(--ok-green-lt);   border-color: var(--ok-green-b);   }
+
+  .rank-meta { font-size: 10px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+  .selected-indicator {
+    font-size: 9px; font-weight: 600;
+    color: var(--brand-600);
+    background: var(--brand-bg);
+    border: 1px solid var(--brand-border);
+    padding: 1px 6px; border-radius: 3px;
+    margin-top: 2px;
+  }
+
+  /* ════════════════════ ACCOUNT CARD ════════════════════ */
+  .acct-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r-lg);
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  .acct-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2px; }
+
+  .acct-name {
+    font-family: var(--font-serif);
+    font-size: 20px; font-weight: 400;
+    color: var(--ink); letter-spacing: -0.4px; line-height: 1.1;
+  }
+
+  .risk-badge {
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.4px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: var(--r-xs);
+    color: var(--risk-red);
+    background: var(--risk-red-lt);
+    border: 1px solid var(--risk-red-b);
+    flex-shrink: 0; margin-top: 3px;
+  }
+
+  .acct-sub { font-size: 11.5px; color: var(--ink-muted); margin-bottom: 12px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+
+  .kpi {
+    background: var(--surface-inner);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm); padding: 8px 10px;
+  }
+
+  .kpi.hi-risk { background: var(--risk-red-lt); border-color: var(--risk-red-b); }
+
+  .kpi-lbl {
+    font-size: 9px; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;
+  }
+
+  .kpi-val { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+  .kpi-val.bad  { color: var(--risk-red); }
+  .kpi-val.warn { color: var(--warn-amber); }
+  .kpi-val.dim  { color: var(--ink); }
+
+  .health-row { display: flex; align-items: center; gap: 8px; }
+  .health-lbl { font-size: 9.5px; color: var(--ink-faint); flex-shrink: 0; }
+  .health-track { flex: 1; height: 4px; background: var(--surface-muted); border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
+  .health-fill { height: 100%; background: var(--risk-red); border-radius: 2px; width: 0; transition: width 1.6s cubic-bezier(.4,0,.2,1) 0.5s; }
+  .health-score { font-size: 10px; font-weight: 700; color: var(--risk-red); }
+
+  /* ════════════════════ SIGNAL GRID ════════════════════ */
+  .signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+
+  .sig-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 10px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+
+  .sig-title {
+    font-size: 9.5px; font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 7px;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .sig-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+
+  .sig-rows { display: flex; flex-direction: column; gap: 4px; }
+
+  .sig-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+
+  .sig-key { color: var(--ink-muted); }
+  .sig-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sig-val.bad   { color: var(--risk-red); }
+  .sig-val.warn  { color: var(--warn-amber); }
+  .sig-val.dim   { color: var(--ink); }
+  .sig-val.muted { color: var(--ink-muted); }
+
+  /* ════════════════════ CONVO BOX ════════════════════ */
+  .convo-box {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 11px 13px;
+    font-size: 11.5px; line-height: 1.65;
+    color: var(--ink-body); margin-bottom: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+
+  .meta-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  .meta-tag {
+    font-size: 9.5px; color: var(--ink-faint);
+    background: var(--surface-inner);
+    border: 1px solid var(--border);
+    border-radius: 3px; padding: 2px 7px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .meta-tag .ck { color: var(--ok-green); }
+
+  /* ════════════════════ CONTEXT PACK ════════════════════ */
+  .pack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+
+  .pack-item {
+    background: var(--surface-inner);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm); padding: 9px 11px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .pack-item.hi { background: var(--brand-bg); border-color: var(--brand-border); }
+
+  .pack-num { font-size: 17px; font-weight: 700; color: var(--brand-600); font-variant-numeric: tabular-nums; line-height: 1; }
+  .pack-desc { font-size: 10px; color: var(--ink-faint); margin-top: 1px; }
+  .pack-item.hi .pack-desc { color: var(--brand-600); }
+
+  /* ════════════════════ BANNER ════════════════════ */
+  .banner {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 13px 24px;
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .banner-text { font-size: 12.5px; color: rgba(255,255,255,0.55); letter-spacing: -0.1px; }
+  .banner-text strong { color: rgba(255,255,255,0.9); font-weight: 500; }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--ink-ghost); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo-group">
+    <img src="public/teravictus-logo.png" class="logo-img" alt="Teravictus">
+  </div>
+
+  <div class="hdr-sep"></div>
+  <span class="view-title">Context Quality Simulator</span>
+  <span class="demo-badge">Conceptual Demo</span>
+
+  <div class="question-bar">
+    <span class="q-icon">▸</span>
+    <span class="q-text"><em>Which accounts are most at risk this quarter, and why?</em></span>
+  </div>
+
+  <div class="hdr-right">
+    <div class="hdr-meta">Model <span>Claude / GPT-class</span></div>
+    <div class="toggle-group">
+      <button class="toggle-btn active">Side-by-Side</button>
+      <button class="toggle-btn">Single</button>
+    </div>
+    <div class="hdr-meta">Last refresh <span>2m ago</span></div>
+  </div>
+</header>
+
+<!-- COMPARISON STRIP -->
+<div class="strip">
+  <div class="strip-item"><span class="strip-dot"></span> Same model</div>
+  <div class="strip-sep"></div>
+  <div class="strip-item"><span class="strip-dot"></span> Same question</div>
+  <div class="strip-sep"></div>
+  <div class="strip-item"><span class="strip-dot"></span> Different context</div>
+  <div class="strip-sep"></div>
+  <div class="strip-item">
+    <span class="strip-dot" style="background:var(--ok-green)"></span> Different context quality
+    <span class="savings-badge">348 fewer tokens &nbsp;−41%</span>
+  </div>
+</div>
+
+<!-- TWO-PANE LAYOUT -->
+<div class="layout">
+
+  <!-- ════════════════════════════════════
+       LEFT PANE — RAW MCP CONTEXT MODE
+  ════════════════════════════════════ -->
+  <div class="pane left">
+    <div class="pane-header">
+      <div class="mode-badge raw"><span class="mode-dot"></span>Raw MCP Context Mode</div>
+    </div>
+
+    <!-- MCP SOURCE FEED -->
+    <div class="sec-label">MCP Source Feed</div>
+    <div class="panel" style="margin-bottom:10px;">
+      <div class="mcp-feed">
+
+        <!-- Salesforce -->
+        <div class="mcp-card">
+          <div class="mcp-head">
+            <span class="mcp-name">mcp.salesforce.query</span>
+            <span class="tag muted">Raw payload</span>
+          </div>
+          <div class="mcp-body"><span class="c">// 3 account records — mixed entity names</span>
+<span class="k">"Id"</span>: <span class="s">"001abc123"</span>,  <span class="k">"Name"</span>: <span class="s">"Acme Inc"</span>,
+<span class="k">"Stage"</span>: <span class="s">"Renewal"</span>,  <span class="k">"ARR"</span>: <span class="n">48000</span>,
+<span class="k">"Renewal_Date"</span>: <span class="s">"2026-05-18"</span>,
+<span class="k">"Health_Status"</span>: <span class="s">"Green"</span>  <span class="c">// stale — 47d ago</span></div>
+          <div class="entity-warn">⚠ Unresolved entity: "Acme Inc" &nbsp;·&nbsp; <span class="tag err" style="display:inline;font-size:9px;">Duplicate entity</span></div>
+        </div>
+
+        <!-- Gong — taller transcript card -->
+        <div class="mcp-card">
+          <div class="mcp-head">
+            <span class="mcp-name">mcp.gong.transcript</span>
+            <span class="tag warn">Transcript-heavy</span>
+          </div>
+          <div class="mcp-body"><span class="k">"meeting_title"</span>: <span class="s">"Acme Corp - Renewal Review"</span>,
+<span class="k">"duration_sec"</span>: <span class="n">735</span>,
+<span class="k">"speaker_turns"</span>: <span class="n">47</span>,
+<span class="k">"transcript"</span>: <span class="s">"...rollout has been slower than planned...
+  only 20% of seats active... executive attention
+  is low this cycle... invoice delay causing
+  concern... procurement is evaluating
+  alternatives from two other vendors...
+  onboarding blockers still unresolved..."</span>
+<span class="c">// +4,800 chars of raw transcript continues below</span>
+<span class="c">// entity: "Acme Corp" — conflicts with SF "Acme Inc"</span></div>
+          <div class="entity-warn red">⚡ Schema mismatch — "Acme Corp" ≠ "Acme Inc"</div>
+        </div>
+
+        <!-- Mixpanel -->
+        <div class="mcp-card">
+          <div class="mcp-head">
+            <span class="mcp-name">mcp.mixpanel.events</span>
+            <span class="tag muted">Raw payload</span>
+          </div>
+          <div class="mcp-body"><span class="k">"workspace"</span>: <span class="s">"acme-prod"</span>,
+<span class="k">"wau"</span>: <span class="n">14</span>,  <span class="k">"wau_prev"</span>: <span class="n">22</span>,
+<span class="k">"modules_active"</span>: <span class="n">2</span>,  <span class="k">"modules_total"</span>: <span class="n">5</span>,
+<span class="k">"last_admin_login_days_ago"</span>: <span class="n">9</span></div>
+        </div>
+
+        <!-- Zendesk -->
+        <div class="mcp-card">
+          <div class="mcp-head">
+            <span class="mcp-name">mcp.zendesk.tickets</span>
+            <span class="tag warn">Source conflict</span>
+          </div>
+          <div class="mcp-body"><span class="k">"open_tickets"</span>: <span class="n">4</span>,  <span class="k">"escalations_10d"</span>: <span class="n">3</span>,
+<span class="k">"avg_frt"</span>: <span class="s">"11h24m"</span>,  <span class="k">"csat_trend"</span>: <span class="s">"6.8->5.9"</span>,
+<span class="k">"themes"</span>: [<span class="s">"onboarding"</span>, <span class="s">"crm_sync"</span>]</div>
+        </div>
+
+        <!-- Stripe -->
+        <div class="mcp-card">
+          <div class="mcp-head">
+            <span class="mcp-name">mcp.stripe.invoices</span>
+            <span class="tag err">Overdue signal</span>
+          </div>
+          <div class="mcp-body"><span class="k">"invoice_status"</span>: <span class="s">"overdue"</span>,
+<span class="k">"days_overdue"</span>: <span class="n">12</span>,
+<span class="k">"last_payment"</span>: <span class="s">"2026-03-31"</span>,
+<span class="k">"contract_status"</span>: <span class="s">"active"</span></div>
+        </div>
+
+      </div>
+      <div class="feed-footer">5 sources · 3 accounts · unresolved entities · no cross-source reconciliation</div>
+    </div>
+
+    <!-- CONTEXT WINDOW ASSEMBLY -->
+    <div class="sec-label">Context Window Assembly</div>
+    <div class="panel" style="border-color:rgba(220,38,38,0.15);">
+      <div class="panel-head" style="background:#FFF8F8;">
+        <span class="panel-title">Context Window Assembly</span>
+        <span class="conf-badge low">● Low confidence</span>
+      </div>
+      <div class="panel-body">
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-lbl">Documents retrieved</div><div class="stat-val warn">27</div></div>
+          <div class="stat-box"><div class="stat-lbl">Characters</div><div class="stat-val bad">48,920</div></div>
+          <div class="stat-box"><div class="stat-lbl">Entity resolution</div><div class="stat-val bad">Incomplete</div></div>
+          <div class="stat-box"><div class="stat-lbl">Conflict rate</div><div class="stat-val bad">High</div></div>
+        </div>
+        <div class="stat-box" style="background:var(--risk-red-lt);border-color:var(--risk-red-b);">
+          <div class="stat-lbl">Context quality</div>
+          <div class="stat-val bad">Noisy — fragmented signals, duplicate entities</div>
+        </div>
+        <div class="meter-wrap">
+          <div class="meter-row">
+            <span style="font-weight:600;color:var(--ink-muted);">Estimated token load</span>
+            <span class="meter-val" style="color:var(--risk-red)">847 tokens</span>
+          </div>
+          <div class="meter-track"><div class="meter-fill hot" id="ml"></div></div>
+          <div class="burn-label bad">▲ High token burn</div>
+        </div>
+        <div class="pills">
+          <span class="pill bad">Latency: 18.4s</span>
+          <span class="pill bad">Confidence: Low</span>
+          <span class="pill warn">Grounding: Weak</span>
+          <span class="pill warn">Evidence: Scattered</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI RESPONSE — LEFT -->
+    <div class="sec-label">AI Response</div>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">AI Response</span>
+        <span class="panel-meta" style="color:var(--warn-amber)">⚠ Hedged · Inconsistent ranking</span>
+      </div>
+      <div class="panel-body">
+        <div class="ai-box weak">
+          The accounts that may be most at risk this quarter include Acme Inc, Northstar Labs, and possibly VertexOps. Acme appears to show the strongest warning signals across usage, support activity, and customer conversations, although some source fields are inconsistent and additional review may be required. Northstar Labs may have moderate adoption risk, while VertexOps appears lower risk at this time.
+        </div>
+        <div class="ai-annotation warn">Observation: hedged ranking, inconsistent entity resolution, low-confidence prioritization</div>
+      </div>
+    </div>
+
+    <!-- EVIDENCE — LEFT -->
+    <div class="sec-label">Why the Model Said This</div>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Evidence Panel</span>
+        <span class="panel-meta">5 signals · ungrounded</span>
+      </div>
+      <div class="chips">
+        <span class="chip vague">Usage down</span>
+        <span class="chip vague">Open tickets</span>
+        <span class="chip vague">Mixed sentiment</span>
+        <span class="chip vague">Contract active</span>
+        <span class="chip vague">Source conflict</span>
+      </div>
+    </div>
+
+  </div><!-- /left pane -->
+
+
+  <!-- ════════════════════════════════════
+       RIGHT PANE — NORMALIZED MODE
+  ════════════════════════════════════ -->
+  <div class="pane right">
+    <div class="pane-header">
+      <div class="mode-badge norm"><span class="mode-dot"></span>Normalized Intelligence Mode</div>
+    </div>
+
+    <!-- RANKED ACCOUNTS LIST -->
+    <div class="sec-label">
+      Ranked Accounts at Risk
+      <span class="sec-badge">Prioritized from normalized context</span>
+    </div>
+    <div class="panel strong-panel" style="margin-bottom:10px;">
+      <div class="ranked-list">
+
+        <!-- Rank 1 — Acme Corp (selected) -->
+        <div class="rank-card selected">
+          <div class="rank-num r1">1</div>
+          <div class="rank-info">
+            <div class="rank-name selected-name">Acme Corp</div>
+            <div class="rank-driver">Usage down 37%, escalations up, invoice overdue 12d</div>
+          </div>
+          <div class="rank-right">
+            <span class="rank-badge high">High</span>
+            <div class="rank-meta">Health 42 · Renewal 26d</div>
+            <div class="selected-indicator">▶ Selected</div>
+          </div>
+        </div>
+
+        <!-- Rank 2 — Northstar Labs -->
+        <div class="rank-card">
+          <div class="rank-num r2">2</div>
+          <div class="rank-info">
+            <div class="rank-name">Northstar Labs</div>
+            <div class="rank-driver">Low feature adoption, champion inactive</div>
+          </div>
+          <div class="rank-right">
+            <span class="rank-badge medium">Medium</span>
+            <div class="rank-meta">Health 61 · Renewal 41d</div>
+          </div>
+        </div>
+
+        <!-- Rank 3 — VertexOps -->
+        <div class="rank-card">
+          <div class="rank-num r3">3</div>
+          <div class="rank-info">
+            <div class="rank-name">VertexOps</div>
+            <div class="rank-driver">Mild engagement decline, no billing risk</div>
+          </div>
+          <div class="rank-right">
+            <span class="rank-badge low">Low</span>
+            <div class="rank-meta">Health 78 · Renewal 63d</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SELECTED ACCOUNT DETAIL -->
+    <div class="sec-label">Selected Account Intelligence</div>
+    <div class="acct-card">
+      <div class="acct-top">
+        <span class="acct-name">Acme Corp</span>
+        <span class="risk-badge">High Risk</span>
+      </div>
+      <div class="acct-sub">Mid-market · Growth Annual · Owner: Sarah Chen</div>
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-lbl">ARR</div><div class="kpi-val dim">$48,000</div></div>
+        <div class="kpi"><div class="kpi-lbl">Renewal</div><div class="kpi-val bad">26 days</div></div>
+        <div class="kpi"><div class="kpi-lbl">Health score</div><div class="kpi-val bad">42<span style="font-size:10px;font-weight:400;color:var(--ink-faint)">/100</span></div></div>
+        <div class="kpi hi-risk"><div class="kpi-lbl">Risk tier</div><div class="kpi-val bad">High</div></div>
+      </div>
+      <div class="health-row">
+        <span class="health-lbl">Health</span>
+        <div class="health-track"><div class="health-fill" id="hbar"></div></div>
+        <span class="health-score">42</span>
+      </div>
+    </div>
+
+    <!-- 2x2 SIGNAL GRID -->
+    <div class="signal-grid">
+      <div class="sig-card">
+        <div class="sig-title"><span class="sig-dot" style="background:var(--risk-red)"></span>Usage</div>
+        <div class="sig-rows">
+          <div class="sig-row"><span class="sig-key">Weekly active users</span><span class="sig-val bad">14</span></div>
+          <div class="sig-row"><span class="sig-key">Prior week</span><span class="sig-val muted">22</span></div>
+          <div class="sig-row"><span class="sig-key">14-day trend</span><span class="sig-val bad">−37%</span></div>
+          <div class="sig-row"><span class="sig-key">Modules active</span><span class="sig-val warn">2 / 5</span></div>
+          <div class="sig-row"><span class="sig-key">Last admin login</span><span class="sig-val warn">9 days ago</span></div>
+        </div>
+      </div>
+      <div class="sig-card">
+        <div class="sig-title"><span class="sig-dot" style="background:var(--warn-amber)"></span>Support</div>
+        <div class="sig-rows">
+          <div class="sig-row"><span class="sig-key">Open tickets</span><span class="sig-val bad">4</span></div>
+          <div class="sig-row"><span class="sig-key">Escalations / 10d</span><span class="sig-val bad">3</span></div>
+          <div class="sig-row"><span class="sig-key">Avg first response</span><span class="sig-val warn">11h 24m</span></div>
+          <div class="sig-row"><span class="sig-key">CSAT trend</span><span class="sig-val bad">6.8 → 5.9</span></div>
+          <div class="sig-row"><span class="sig-key">Blockers</span><span class="sig-val warn">2 unresolved</span></div>
+        </div>
+      </div>
+      <div class="sig-card">
+        <div class="sig-title"><span class="sig-dot" style="background:var(--risk-red)"></span>Billing</div>
+        <div class="sig-rows">
+          <div class="sig-row"><span class="sig-key">Invoice overdue</span><span class="sig-val bad">12 days</span></div>
+          <div class="sig-row"><span class="sig-key">Contract</span><span class="sig-val dim">Active, renewal pending</span></div>
+          <div class="sig-row"><span class="sig-key">Last payment</span><span class="sig-val muted">Mar 31</span></div>
+          <div class="sig-row"><span class="sig-key">Expansion likelihood</span><span class="sig-val bad">Low</span></div>
+        </div>
+      </div>
+      <div class="sig-card">
+        <div class="sig-title"><span class="sig-dot" style="background:var(--warn-amber)"></span>Conversation</div>
+        <div class="sig-rows">
+          <div class="sig-row"><span class="sig-key">Sentiment</span><span class="sig-val bad">Negative trend</span></div>
+          <div class="sig-row"><span class="sig-key">Stakeholders active</span><span class="sig-val warn">2 / 6</span></div>
+          <div class="sig-row"><span class="sig-key">Decision-maker</span><span class="sig-val bad">Not reached</span></div>
+          <div class="sig-row"><span class="sig-key">Procurement risk</span><span class="sig-val warn">Medium</span></div>
+          <div class="sig-row"><span class="sig-key">Competitive mentions</span><span class="sig-val warn">2 / 30 days</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONVERSATION SUMMARY -->
+    <div class="convo-box">
+      Customer sees value in reporting visibility but is concerned that rollout has been slower than expected. Adoption remains concentrated within a small user group, two onboarding blockers are unresolved, leadership has not yet seen enough impact to commit confidently to renewal, and the team requested a tighter success plan before the next renewal conversation.
+      <div class="meta-row">
+        <span class="meta-tag"><span class="ck">✓</span> Entity resolution: Complete</span>
+        <span class="meta-tag"><span class="ck">✓</span> Source coverage: 5/5</span>
+        <span class="meta-tag"><span class="ck">✓</span> Schema confidence: High</span>
+        <span class="meta-tag">Last sync: 2m ago</span>
+      </div>
+    </div>
+
+    <!-- NORMALIZED CONTEXT PACK -->
+    <div class="sec-label">Normalized Context Pack</div>
+    <div class="panel strong-panel">
+      <div class="panel-head">
+        <span class="panel-title">Normalized Context Pack</span>
+        <span class="conf-badge high">● High confidence</span>
+      </div>
+      <div class="panel-body">
+        <div class="pack-grid">
+          <div class="pack-item"><div class="pack-num">3</div><div><div class="pack-desc">Ranked accounts</div></div></div>
+          <div class="pack-item"><div class="pack-num">1</div><div><div class="pack-desc">Selected account object</div></div></div>
+          <div class="pack-item"><div class="pack-num">8</div><div><div class="pack-desc">Grouped signal clusters</div></div></div>
+          <div class="pack-item hi"><div class="pack-num" style="color:var(--brand-600)">✓</div><div><div class="pack-desc">Entity resolution: Complete</div></div></div>
+        </div>
+        <div class="meter-wrap">
+          <div class="meter-row">
+            <span style="font-weight:600;color:var(--ink-muted);">Estimated token load</span>
+            <span class="meter-val" style="color:var(--brand-600)">499 tokens</span>
+          </div>
+          <div class="meter-track"><div class="meter-fill cool" id="mr"></div></div>
+          <div class="burn-label good">▼ Low token burn</div>
+        </div>
+        <div class="pills">
+          <span class="pill brand">Latency: 2.1s</span>
+          <span class="pill good">Confidence: High</span>
+          <span class="pill good">Grounding: Strong</span>
+          <span class="pill brand">Evidence: Clear</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI RESPONSE — RIGHT -->
+    <div class="sec-label">AI Response</div>
+    <div class="panel strong-panel">
+      <div class="panel-head">
+        <span class="panel-title">AI Response</span>
+        <span class="panel-meta" style="color:var(--ok-green)">✓ Ranked · Precise · Actionable</span>
+      </div>
+      <div class="panel-body">
+        <div class="ai-box strong">
+          <div class="ai-headline">The most at-risk accounts this quarter are Acme Corp, Northstar Labs, and VertexOps — with Acme Corp clearly at highest risk.</div>
+          <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--ink-faint);margin-bottom:6px;">Why Acme ranks first</div>
+          <ul class="driver-list">
+            <li><span class="li-num">1.</span> Usage fell 37% in the last 14 days and only 2 of 5 modules are active.</li>
+            <li><span class="li-num">2.</span> Three escalations opened in 10 days and CSAT fell from 6.8 to 5.9.</li>
+            <li><span class="li-num">3.</span> Renewal is in 26 days while the invoice is already 12 days overdue.</li>
+            <li><span class="li-num">4.</span> Only 2 of 6 stakeholders are active, the decision-maker has not been re-engaged, and recent calls point to rollout delays.</li>
+          </ul>
+          <div class="ai-cta"><strong>Recommended next action:</strong> Trigger a joint CSM + AE recovery plan for Acme within 48 hours, while monitoring Northstar Labs for adoption risk and VertexOps for early engagement slippage.</div>
+        </div>
+        <div class="ai-annotation brand">Observation: precise, evidence-grounded, executive-ready</div>
+      </div>
+    </div>
+
+    <!-- EVIDENCE — RIGHT -->
+    <div class="sec-label">Why the Model Said This</div>
+    <div class="panel strong-panel">
+      <div class="panel-head">
+        <span class="panel-title">Evidence Panel</span>
+        <span class="panel-meta">6 signals · fully grounded</span>
+      </div>
+      <div class="evidence-lbl">Grounded in normalized evidence</div>
+      <div class="chips">
+        <span class="chip risk">Usage −37% / 14d</span>
+        <span class="chip caution">3 escalations / 10d</span>
+        <span class="chip risk">Renewal in 26d</span>
+        <span class="chip risk">Invoice overdue 12d</span>
+        <span class="chip caution">2/6 stakeholders active</span>
+        <span class="chip caution">Rollout delays mentioned</span>
+      </div>
+    </div>
+
+  </div><!-- /right pane -->
+</div><!-- /layout -->
+
+<!-- BOTTOM BANNER -->
+<div class="banner">
+  <div class="banner-text">
+    <strong>More source access does not automatically mean better AI.</strong> Better context design produces sharper answers with lower token burn.
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('ml').style.width = '84%';
+      document.getElementById('mr').style.width = '12%';
+      document.getElementById('hbar').style.width = '42%';
+    }, 300);
+  });
+</script>
+</body>
+</html>

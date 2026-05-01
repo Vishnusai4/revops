@@ -188,10 +188,10 @@ function fmtPct(n: number): string {
 
 function statusColors(status: AssessmentOutput['statusLabel']) {
   switch (status) {
-    case 'Stable':    return { bg: C.greenLight,  text: C.green }
-    case 'Watchlist': return { bg: C.amberLight,  text: C.amber }
-    case 'Fragile':   return { bg: C.orangeLight, text: C.orange }
-    case 'Exposed':   return { bg: C.redLight,    text: C.red }
+    case 'Defensible':    return { bg: C.greenLight, text: C.green }
+    case 'Fragile':       return { bg: C.amberLight, text: C.amber }
+    case 'At Risk':       return { bg: C.orangeLight, text: C.orange }
+    case 'Critical Risk': return { bg: C.redLight, text: C.red }
   }
 }
 
