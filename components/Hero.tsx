@@ -6,7 +6,7 @@ export default function Hero() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <AnimateIn>
           <h1 className="font-heading text-3xl tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            The data-spine of your revenue engine.
+            RevenueOS: Make your GTM and revenue data AI-ready
           </h1>
         </AnimateIn>
         <AnimateIn delay={0.1}>
