@@ -55,7 +55,7 @@ export default function WhyNotAgencyDiy() {
                 <span className="text-xs font-semibold uppercase tracking-widest text-ink-muted">Agency</span>
               </div>
               <div className="px-6 py-4 border-l border-ink/5">
-                <span className="text-xs font-semibold uppercase tracking-widest text-ink-muted">DIY (Fivetran + dbt)</span>
+                <span className="text-xs font-semibold uppercase tracking-widest text-ink-muted">DIY</span>
               </div>
               <div className="px-6 py-4 border-l border-brand-200 bg-brand-50">
                 <span className="text-xs font-semibold uppercase tracking-widest text-brand-600">Teravictus</span>
@@ -98,7 +98,7 @@ export default function WhyNotAgencyDiy() {
 
             <div className="rounded-2xl border border-ink/5 bg-white overflow-hidden">
               <div className="px-5 py-3 bg-surface-muted border-b border-ink/5">
-                <span className="text-xs font-semibold uppercase tracking-widest text-ink-muted">DIY (Fivetran + dbt)</span>
+                <span className="text-xs font-semibold uppercase tracking-widest text-ink-muted">DIY</span>
               </div>
               {rows.map((row, i) => (
                 <div key={i} className={`px-5 py-4 ${i < rows.length - 1 ? 'border-b border-ink/5' : ''}`}>
