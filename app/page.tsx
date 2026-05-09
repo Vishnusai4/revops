@@ -1,5 +1,6 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
+import WhyNotAgencyDiy from '@/components/WhyNotAgencyDiy'
 import BetaProgram from '@/components/BetaProgram'
 import WhoItsFor from '@/components/WhoItsFor'
 import About from '@/components/About'
@@ -11,6 +12,7 @@ export default function Home() {
     <main>
       <Header />
       <Hero />
+      <WhyNotAgencyDiy />
       <BetaProgram />
       <WhoItsFor />
       <About />

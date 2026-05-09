@@ -8,6 +8,7 @@ const navLinks = [
   { label: 'Conceptual Demo', href: '/context-simulator' },
   { label: 'Pilot Program', href: '#beta' },
   { label: 'Who It\u2019s For', href: '#built-for' },
+  { label: 'Why Not Agency/DIY?', href: '#why-not-agency-diy' },
   { label: 'About', href: '#about' },
 ]
 
